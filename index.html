@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PerforMotion — Membership Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    :root {
+      --bg: #eef0f5;
+      --surface: #ffffff;
+      --border: rgba(15,35,80,0.1);
+      --text: #0f2350;
+      --muted: #6b7a9e;
+      --accent: #0f2350;
+      --accent2: #2a52a0;
+      --warn: #d4820a;
+      --danger: #c0392b;
+      --success: #1a7a4a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.9rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-mark { width: 34px; height: 34px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; color: #fff; }
+    .logo-text { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+    .logo-sub { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .live-badge { display: flex; align-items: center; gap: 6px; background: rgba(15,35,80,0.07); border: 1px solid rgba(15,35,80,0.15); color: var(--accent); font-size: 11px; padding: 4px 10px; border-radius: 20px; font-family: 'DM Mono', monospace; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; overflow-x: auto; }
+    .nav-tab { padding: 12px 18px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s; }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .page { position: absolute; left: -9999px; top: 0; width: 1200px; padding: 2rem; pointer-events: none; opacity: 0; }
+    .page.active { position: relative; left: auto; top: auto; width: 100%; max-width: 1400px; margin: 0 auto; pointer-events: all; opacity: 1; }
+
+    .section-label { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; margin-top: 2rem; }
+    .section-label:first-child { margin-top: 0; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; }
+    .card-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .card-sub { font-size: 11px; color: var(--muted); margin-bottom: 1rem; font-family: 'DM Mono', monospace; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.3rem; position: relative; overflow: hidden; }
+    .metric::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; background: var(--accent-color, var(--accent)); }
+    .metric.warn { --accent-color: var(--warn); }
+    .metric.danger { --accent-color: var(--danger); }
+    .metric.info { --accent-color: var(--accent2); }
+    .metric-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .metric-value { font-size: 28px; font-weight: 300; letter-spacing: -0.03em; line-height: 1; color: var(--text); }
+    .metric-value span { font-size: 14px; color: var(--muted); }
+    .metric-sub { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: 'DM Mono', monospace; }
+    .metric-sub.up { color: var(--success); }
+    .metric-sub.down { color: var(--danger); }
+
+    .alert-strip { background: rgba(212,130,10,0.06); border: 1px solid rgba(212,130,10,0.25); border-radius: 14px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+    .alert-header { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--warn); margin-bottom: 12px; }
+    .alert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+    .alert-card { background: rgba(212,130,10,0.04); border: 1px solid rgba(212,130,10,0.18); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+    .alert-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .alert-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .alert-days { font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; background: rgba(192,57,43,0.1); color: var(--danger); padding: 3px 8px; border-radius: 20px; }
+
+    .bar-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .bar-row:last-child { border-bottom: none; }
+    .bar-label { font-size: 12px; color: var(--muted); width: 130px; flex-shrink: 0; }
+    .bar-bg { flex: 1; height: 4px; background: rgba(15,35,80,0.08); border-radius: 2px; }
+    .bar-fill { height: 4px; border-radius: 2px; }
+    .bar-val { font-size: 12px; font-family: 'DM Mono', monospace; min-width: 38px; text-align: right; }
+
+    .type-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .type-row:last-child { border-bottom: none; }
+    .type-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .type-name { font-size: 13px; flex: 1; }
+    .type-bar-bg { width: 80px; height: 4px; background: rgba(15,35,80,0.08); border-radius: 2px; }
+    .type-bar { height: 4px; border-radius: 2px; }
+    .type-count { font-size: 13px; font-weight: 500; font-family: 'DM Mono', monospace; min-width: 36px; text-align: right; }
+    .type-pct { font-size: 11px; color: var(--muted); min-width: 34px; text-align: right; font-family: 'DM Mono', monospace; }
+
+    .search-bar { display: flex; gap: 10px; margin-bottom: 1.25rem; }
+    .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--muted); }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); font-weight: 400; }
+    .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--bg); }
+
+    .badge { display: inline-block; font-size: 10px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+    .badge-active { background: rgba(26,122,74,0.1); color: var(--success); }
+    .badge-hold { background: rgba(212,130,10,0.1); color: var(--warn); }
+    .badge-danger { background: rgba(192,57,43,0.1); color: var(--danger); }
+
+    .class-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .class-row:last-child { border-bottom: none; }
+    .class-info { flex: 1; }
+    .class-name { font-size: 13px; font-weight: 500; }
+    .class-time { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .class-cap-bg { width: 100px; height: 6px; background: rgba(15,35,80,0.08); border-radius: 3px; }
+    .class-cap-fill { height: 6px; border-radius: 3px; }
+    .class-cap-text { font-size: 11px; font-family: 'DM Mono', monospace; min-width: 50px; text-align: right; }
+
+    .sample-notice { text-align: center; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 2rem 0 0.5rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+
+    @media(max-width:900px){ .grid2{ grid-template-columns:1fr; } .page{ padding:1rem; } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <div>
+      <div class="logo-text">PerforMotion</div>
+      <div class="logo-sub">Membership Dashboard</div>
+    </div>
+  </div>
+  <div class="live-badge"><div class="live-dot"></div>SAMPLE DATA</div>
+</div>
+
+<div class="nav">
+  <div class="nav-tab active" onclick="showPage('overview',this)">Overview</div>
+  <div class="nav-tab" onclick="showPage('members',this)">Members</div>
+  <div class="nav-tab" onclick="showPage('classes',this)">Classes</div>
+  <div class="nav-tab" onclick="showPage('revenue',this)">Revenue</div>
+  <div class="nav-tab" onclick="showPage('cancellations',this)">Cancellations</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="section-label">Overview — all time since 2021</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Active members</div><div class="metric-value">847</div><div class="metric-sub up">↑ +34 this month</div></div>
+    <div class="metric info"><div class="metric-label">Total sign-ups since 2021</div><div class="metric-value">1,105</div><div class="metric-sub">All time</div></div>
+    <div class="metric"><div class="metric-label">Avg. member lifetime</div><div class="metric-value">14 <span>mo</span></div><div class="metric-sub">All time average</div></div>
+    <div class="metric danger"><div class="metric-label">Cancellations MTD</div><div class="metric-value">18</div><div class="metric-sub down">↑ +3 vs last month</div></div>
+    <div class="metric warn"><div class="metric-label">Members on hold</div><div class="metric-value">23</div><div class="metric-sub">Active holds</div></div>
+    <div class="metric"><div class="metric-label">Retention rate</div><div class="metric-value">91 <span>%</span></div><div class="metric-sub up">↑ +2% vs last month</div></div>
+  </div>
+
+  <div class="alert-strip">
+    <div class="alert-header">⚠ At-risk members — no visit in 14+ days (11 members)</div>
+    <div class="alert-grid">
+      <div class="alert-card"><div><div class="alert-name">Sarah M.</div><div class="alert-detail">Perf Core — monthly DD</div></div><div class="alert-days">21 days</div></div>
+      <div class="alert-card"><div><div class="alert-name">James P.</div><div class="alert-detail">Perf Prime II — annual</div></div><div class="alert-days">28 days</div></div>
+      <div class="alert-card"><div><div class="alert-name">Emma R.</div><div class="alert-detail">Community membership</div></div><div class="alert-days">18 days</div></div>
+      <div class="alert-card"><div><div class="alert-name">Tom L.</div><div class="alert-detail">Perf Plus — concession</div></div><div class="alert-days">35 days</div></div>
+      <div class="alert-card"><div><div class="alert-name">Priya K.</div><div class="alert-detail">Perf Core — monthly DD</div></div><div class="alert-days">16 days</div></div>
+      <div class="alert-card"><div><div class="alert-name">Marcus W.</div><div class="alert-detail">Perf Prime III</div></div><div class="alert-days">22 days</div></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Sign-ups vs cancellations</div>
+      <div class="card-sub">2021 — 2026</div>
+      <div style="position:relative;height:200px;"><canvas id="c-signup"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Retention rate</div>
+      <div class="card-sub">Last 12 months</div>
+      <div style="position:relative;height:200px;"><canvas id="c-retention"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-label">Membership types — current active</div>
+  <div class="card">
+    <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Perf Core</span><div class="type-bar-bg"><div class="type-bar" style="width:38%;background:#0f2350"></div></div><span class="type-count">322</span><span class="type-pct">38%</span></div>
+    <div class="type-row"><div class="type-dot" style="background:#2a52a0"></div><span class="type-name">Perf Plus</span><div class="type-bar-bg"><div class="type-bar" style="width:24%;background:#2a52a0"></div></div><span class="type-count">203</span><span class="type-pct">24%</span></div>
+    <div class="type-row"><div class="type-dot" style="background:#4a72c0"></div><span class="type-name">Perf Prime II</span><div class="type-bar-bg"><div class="type-bar" style="width:16%;background:#4a72c0"></div></div><span class="type-count">136</span><span class="type-pct">16%</span></div>
+    <div class="type-row"><div class="type-dot" style="background:#7a9ed5"></div><span class="type-name">Perf Prime III</span><div class="type-bar-bg"><div class="type-bar" style="width:11%;background:#7a9ed5"></div></div><span class="type-count">93</span><span class="type-pct">11%</span></div>
+    <div class="type-row"><div class="type-dot" style="background:#b5c4e0"></div><span class="type-name">Community Membership</span><div class="type-bar-bg"><div class="type-bar" style="width:8%;background:#b5c4e0"></div></div><span class="type-count">68</span><span class="type-pct">8%</span></div>
+    <div class="type-row"><div class="type-dot" style="background:#d5dff0"></div><span class="type-name">Recovery Book-ins</span><div class="type-bar-bg"><div class="type-bar" style="width:3%;background:#d5dff0"></div></div><span class="type-count">25</span><span class="type-pct">3%</span></div>
+  </div>
+  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+</div>
+
+<!-- MEMBERS -->
+<div class="page" id="page-members">
+  <div class="section-label">Member search & profiles</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total active</div><div class="metric-value">847</div></div>
+    <div class="metric warn"><div class="metric-label">On hold</div><div class="metric-value">23</div></div>
+    <div class="metric danger"><div class="metric-label">At risk (14+ days)</div><div class="metric-value">11</div></div>
+    <div class="metric info"><div class="metric-label">New this month</div><div class="metric-value">34</div></div>
+  </div>
+  <div class="card">
+    <div class="search-bar"><input class="search-input" type="text" placeholder="Search by name, membership type or status..." oninput="filterMembers(this.value)" /></div>
+    <table class="data-table" id="memberTable">
+      <thead><tr><th>Name</th><th>Membership type</th><th>Status</th><th>Joined</th><th>Last visit</th><th>Total visits</th></tr></thead>
+      <tbody id="memberBody"></tbody>
+    </table>
+  </div>
+  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+</div>
+
+<!-- CLASSES -->
+<div class="page" id="page-classes">
+  <div class="section-label">Class bookings & attendance</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Classes this week</div><div class="metric-value">42</div></div>
+    <div class="metric info"><div class="metric-label">Total bookings</div><div class="metric-value">1,204</div></div>
+    <div class="metric warn"><div class="metric-label">No-shows this week</div><div class="metric-value">38</div></div>
+    <div class="metric danger"><div class="metric-label">Late cancellations</div><div class="metric-value">17</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Today's classes — capacity</div>
+      <div class="card-sub">Spots filled vs total available</div>
+      <div class="class-row"><div class="class-info"><div class="class-name">6am Strength & Conditioning</div><div class="class-time">06:00 — 07:00</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:95%;background:#c0392b"></div></div><div class="class-cap-text" style="color:#c0392b">19/20</div></div>
+      <div class="class-row"><div class="class-info"><div class="class-name">9am Perf Core Training</div><div class="class-time">09:00 — 10:00</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:75%;background:#d4820a"></div></div><div class="class-cap-text" style="color:#d4820a">15/20</div></div>
+      <div class="class-row"><div class="class-info"><div class="class-name">11am Recovery & Mobility</div><div class="class-time">11:00 — 12:00</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:50%;background:#1a7a4a"></div></div><div class="class-cap-text" style="color:#1a7a4a">8/16</div></div>
+      <div class="class-row"><div class="class-info"><div class="class-name">5:30pm Perf Plus HIIT</div><div class="class-time">17:30 — 18:30</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:100%;background:#c0392b"></div></div><div class="class-cap-text" style="color:#c0392b">20/20</div></div>
+      <div class="class-row"><div class="class-info"><div class="class-name">6:30pm Community Circuit</div><div class="class-time">18:30 — 19:30</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:60%;background:#1a7a4a"></div></div><div class="class-cap-text" style="color:#1a7a4a">12/20</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Most popular classes</div>
+      <div class="card-sub">By bookings this month</div>
+      <div class="bar-row"><span class="bar-label">5:30pm Perf Plus HIIT</span><div class="bar-bg"><div class="bar-fill" style="width:95%;background:#2a52a0"></div></div><span class="bar-val">312</span></div>
+      <div class="bar-row"><span class="bar-label">6am S&C</span><div class="bar-bg"><div class="bar-fill" style="width:82%;background:#2a52a0"></div></div><span class="bar-val">268</span></div>
+      <div class="bar-row"><span class="bar-label">9am Perf Core</span><div class="bar-bg"><div class="bar-fill" style="width:70%;background:#2a52a0"></div></div><span class="bar-val">229</span></div>
+      <div class="bar-row"><span class="bar-label">Community Circuit</span><div class="bar-bg"><div class="bar-fill" style="width:55%;background:#2a52a0"></div></div><span class="bar-val">181</span></div>
+      <div class="bar-row"><span class="bar-label">Recovery & Mobility</span><div class="bar-bg"><div class="bar-fill" style="width:38%;background:#2a52a0"></div></div><span class="bar-val">124</span></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Bookings vs no-shows</div>
+      <div class="card-sub">Last 8 weeks</div>
+      <div style="position:relative;height:200px;"><canvas id="c-bookings"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Least attended classes</div>
+      <div class="card-sub">Average fill rate this month</div>
+      <div class="bar-row"><span class="bar-label">Wed 2pm Stretch</span><div class="bar-bg"><div class="bar-fill" style="width:22%;background:#c0392b"></div></div><span class="bar-val" style="color:#c0392b">22%</span></div>
+      <div class="bar-row"><span class="bar-label">Tue 7am Recovery</span><div class="bar-bg"><div class="bar-fill" style="width:31%;background:#d4820a"></div></div><span class="bar-val" style="color:#d4820a">31%</span></div>
+      <div class="bar-row"><span class="bar-label">Thu 1pm Core</span><div class="bar-bg"><div class="bar-fill" style="width:38%;background:#d4820a"></div></div><span class="bar-val" style="color:#d4820a">38%</span></div>
+      <div class="bar-row"><span class="bar-label">Sat 8am Community</span><div class="bar-bg"><div class="bar-fill" style="width:42%;background:#d4820a"></div></div><span class="bar-val" style="color:#d4820a">42%</span></div>
+      <div class="bar-row"><span class="bar-label">Sun 9am S&C</span><div class="bar-bg"><div class="bar-fill" style="width:45%;background:#1a7a4a"></div></div><span class="bar-val" style="color:#1a7a4a">45%</span></div>
+    </div>
+  </div>
+  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+</div>
+
+<!-- REVENUE -->
+<div class="page" id="page-revenue">
+  <div class="section-label">Revenue & payments</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Revenue this month</div><div class="metric-value">$41,280</div><div class="metric-sub up">↑ +8% vs last month</div></div>
+    <div class="metric danger"><div class="metric-label">Overdue / failed</div><div class="metric-value">$3,840</div><div class="metric-sub down">14 members</div></div>
+    <div class="metric warn"><div class="metric-label">Renewals this week</div><div class="metric-value">28</div><div class="metric-sub">Action needed</div></div>
+    <div class="metric info"><div class="metric-label">YTD revenue</div><div class="metric-value">$118,440</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Revenue by membership type</div>
+      <div class="card-sub">This month</div>
+      <div style="position:relative;height:220px;"><canvas id="c-revtype"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Monthly revenue trend</div>
+      <div class="card-sub">Last 12 months</div>
+      <div style="position:relative;height:220px;"><canvas id="c-revtrend"></canvas></div>
+    </div>
+  </div>
+  <div class="section-label">Overdue & failed payments</div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Member</th><th>Membership type</th><th>Amount overdue</th><th>Days overdue</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>David K.</td><td>Perf Prime II</td><td>$89.00</td><td>12 days</td><td><span class="badge badge-danger">Failed DD</span></td></tr>
+        <tr><td>Anika S.</td><td>Perf Core</td><td>$49.00</td><td>8 days</td><td><span class="badge badge-danger">Failed DD</span></td></tr>
+        <tr><td>Lee T.</td><td>Perf Plus</td><td>$69.00</td><td>21 days</td><td><span class="badge badge-danger">Overdue</span></td></tr>
+        <tr><td>Rachel B.</td><td>Community</td><td>$35.00</td><td>5 days</td><td><span class="badge badge-hold">Pending</span></td></tr>
+        <tr><td>Chris M.</td><td>Perf Prime III</td><td>$119.00</td><td>14 days</td><td><span class="badge badge-danger">Failed DD</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-label">Upcoming renewals this week</div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Member</th><th>Membership type</th><th>Renewal amount</th><th>Renewal date</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Mia J.</td><td>Perf Prime III — annual</td><td>$1,188.00</td><td>30 Mar 2026</td><td><span class="badge badge-active">Auto-renews</span></td></tr>
+        <tr><td>Ben A.</td><td>Perf Core — annual</td><td>$588.00</td><td>31 Mar 2026</td><td><span class="badge badge-hold">Confirm needed</span></td></tr>
+        <tr><td>Tara W.</td><td>Community — annual</td><td>$420.00</td><td>1 Apr 2026</td><td><span class="badge badge-active">Auto-renews</span></td></tr>
+        <tr><td>Jay P.</td><td>Perf Plus — annual</td><td>$828.00</td><td>2 Apr 2026</td><td><span class="badge badge-hold">Confirm needed</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+</div>
+
+<!-- CANCELLATIONS -->
+<div class="page" id="page-cancellations">
+  <div class="section-label">Cancellations & holds</div>
+  <div class="metrics">
+    <div class="metric danger"><div class="metric-label">Cancellations this month</div><div class="metric-value">18</div><div class="metric-sub down">↑ +3 vs last month</div></div>
+    <div class="metric"><div class="metric-label">Cancellations YTD</div><div class="metric-value">97</div></div>
+    <div class="metric warn"><div class="metric-label">Active holds</div><div class="metric-value">23</div></div>
+    <div class="metric info"><div class="metric-label">Avg. tenure at cancel</div><div class="metric-value">9 <span>mo</span></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Cancellations by month</div>
+      <div class="card-sub">2025 — 2026</div>
+      <div style="position:relative;height:200px;"><canvas id="c-canceltrend"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cancellation reasons</div>
+      <div class="card-sub">All time breakdown</div>
+      <div class="bar-row"><span class="bar-label">Too expensive</span><div class="bar-bg"><div class="bar-fill" style="width:72%;background:#c0392b"></div></div><span class="bar-val">32%</span></div>
+      <div class="bar-row"><span class="bar-label">Not using it</span><div class="bar-bg"><div class="bar-fill" style="width:55%;background:#c0392b"></div></div><span class="bar-val">24%</span></div>
+      <div class="bar-row"><span class="bar-label">Moved away</span><div class="bar-bg"><div class="bar-fill" style="width:38%;background:#c0392b"></div></div><span class="bar-val">17%</span></div>
+      <div class="bar-row"><span class="bar-label">Injury / health</span><div class="bar-bg"><div class="bar-fill" style="width:28%;background:#c0392b"></div></div><span class="bar-val">12%</span></div>
+      <div class="bar-row"><span class="bar-label">Another gym</span><div class="bar-bg"><div class="bar-fill" style="width:18%;background:#c0392b"></div></div><span class="bar-val">8%</span></div>
+      <div class="bar-row"><span class="bar-label">Other</span><div class="bar-bg"><div class="bar-fill" style="width:14%;background:#c0392b"></div></div><span class="bar-val">7%</span></div>
+    </div>
+  </div>
+  <div class="section-label">Cancellations by membership type</div>
+  <div class="card">
+    <div style="position:relative;height:220px;"><canvas id="c-canceltype"></canvas></div>
+  </div>
+  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+</div>
+
+<script>
+// NAV
+function showPage(name, tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  tab.classList.add('active');
+}
+
+// MEMBERS
+const members = [
+  {name:'Sarah M.', type:'Perf Core', status:'danger', statusLabel:'at risk', joined:'Jan 2023', lastVisit:'7 Mar 2026', visits:142},
+  {name:'James P.', type:'Perf Prime II', status:'danger', statusLabel:'at risk', joined:'Jun 2022', lastVisit:'28 Feb 2026', visits:89},
+  {name:'Emma R.', type:'Community', status:'danger', statusLabel:'at risk', joined:'Mar 2024', lastVisit:'10 Mar 2026', visits:34},
+  {name:'Tom L.', type:'Perf Plus', status:'hold', statusLabel:'on hold', joined:'Aug 2021', lastVisit:'21 Feb 2026', visits:267},
+  {name:'Priya K.', type:'Perf Core', status:'danger', statusLabel:'at risk', joined:'Nov 2023', lastVisit:'12 Mar 2026', visits:71},
+  {name:'Marcus W.', type:'Perf Prime III', status:'active', statusLabel:'active', joined:'Feb 2022', lastVisit:'27 Mar 2026', visits:388},
+  {name:'Anika S.', type:'Perf Core', status:'active', statusLabel:'active', joined:'Apr 2023', lastVisit:'26 Mar 2026', visits:198},
+  {name:'Ben A.', type:'Perf Plus', status:'active', statusLabel:'active', joined:'Sep 2021', lastVisit:'25 Mar 2026', visits:412},
+  {name:'Mia J.', type:'Perf Prime III', status:'active', statusLabel:'active', joined:'Jan 2022', lastVisit:'28 Mar 2026', visits:521},
+  {name:'Chris M.', type:'Perf Plus', status:'hold', statusLabel:'on hold', joined:'Jul 2023', lastVisit:'1 Mar 2026', visits:156},
+  {name:'Rachel B.', type:'Community', status:'active', statusLabel:'active', joined:'Oct 2024', lastVisit:'20 Mar 2026', visits:28},
+  {name:'David K.', type:'Perf Prime II', status:'active', statusLabel:'active', joined:'Mar 2022', lastVisit:'22 Mar 2026', visits:301},
+  {name:'Tara W.', type:'Community', status:'active', statusLabel:'active', joined:'Jun 2023', lastVisit:'27 Mar 2026', visits:89},
+  {name:'Jay P.', type:'Perf Plus', status:'active', statusLabel:'active', joined:'Dec 2021', lastVisit:'26 Mar 2026', visits:445},
+  {name:'Lee T.', type:'Recovery Book-in', status:'active', statusLabel:'active', joined:'Feb 2025', lastVisit:'15 Mar 2026', visits:22},
+];
+
+function renderMembers(data) {
+  document.getElementById('memberBody').innerHTML = data.map(m => `
+    <tr>
+      <td style="font-weight:500">${m.name}</td>
+      <td>${m.type}</td>
+      <td><span class="badge badge-${m.status}">${m.statusLabel}</span></td>
+      <td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:12px">${m.joined}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${m.lastVisit}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${m.visits}</td>
+    </tr>`).join('');
+}
+
+function filterMembers(q) {
+  renderMembers(members.filter(m =>
+    m.name.toLowerCase().includes(q.toLowerCase()) ||
+    m.type.toLowerCase().includes(q.toLowerCase()) ||
+    m.statusLabel.toLowerCase().includes(q.toLowerCase())
+  ));
+}
+
+renderMembers(members);
+
+// CHARTS — all built on window load so canvas sizes are known
+Chart.defaults.color = '#6b7a9e';
+Chart.defaults.borderColor = 'rgba(15,35,80,0.08)';
+
+function buildCharts() {
+  var navy = '#0f2350', blue = '#2a52a0', light = '#b5c4e0', red = '#c0392b', muted = '#6b7a9e';
+  var tickFont = { size: 11, family: 'DM Mono' };
+
+  new Chart(document.getElementById('c-signup'), {
+    type:'bar',
+    data:{
+      labels:['2021','2022','2023','2024','2025','2026'],
+      datasets:[
+        {label:'Sign-ups', data:[142,198,223,267,241,34], backgroundColor:navy, borderRadius:5, borderSkipped:false},
+        {label:'Cancellations', data:[48,62,71,84,79,18], backgroundColor:light, borderRadius:5, borderSkipped:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
+  });
+
+  new Chart(document.getElementById('c-retention'), {
+    type:'line',
+    data:{
+      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[{label:'Retention %', data:[88,91,87,93,90,85,89,92,94,90,89,91], borderColor:blue, backgroundColor:'rgba(42,82,160,0.07)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:blue, pointBorderColor:'transparent'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{min:75,max:100,ticks:{font:tickFont,callback:function(v){return v+'%'}}}}}
+  });
+
+  new Chart(document.getElementById('c-bookings'), {
+    type:'bar',
+    data:{
+      labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],
+      datasets:[
+        {label:'Bookings', data:[312,298,341,289,367,321,298,344], backgroundColor:blue, borderRadius:4, borderSkipped:false},
+        {label:'No-shows', data:[28,34,22,41,19,38,31,25], backgroundColor:light, borderRadius:4, borderSkipped:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
+  });
+
+  new Chart(document.getElementById('c-revtype'), {
+    type:'doughnut',
+    data:{
+      labels:['Perf Core','Perf Plus','Perf Prime II','Perf Prime III','Community','Recovery'],
+      datasets:[{data:[15778,13807,12124,8277,2618,676], backgroundColor:[navy,blue,'#4a72c0','#7a9ed5',light,'#d5dff0'], borderWidth:0, hoverOffset:4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:tickFont,boxWidth:10,padding:10}}},cutout:'62%'}
+  });
+
+  new Chart(document.getElementById('c-revtrend'), {
+    type:'line',
+    data:{
+      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[{label:'Revenue', data:[36200,38100,35800,41200,39800,37600,40100,42300,38900,39400,38200,41280], borderColor:navy, backgroundColor:'rgba(15,35,80,0.06)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:navy, pointBorderColor:'transparent'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont,callback:function(v){return '$'+v.toLocaleString()}}}}}
+  });
+
+  new Chart(document.getElementById('c-canceltrend'), {
+    type:'bar',
+    data:{
+      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[{label:'Cancellations', data:[12,9,14,11,16,8,13,10,12,15,11,18], backgroundColor:red, borderRadius:5, borderSkipped:false}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
+  });
+
+  new Chart(document.getElementById('c-canceltype'), {
+    type:'bar',
+    data:{
+      labels:['Perf Core','Perf Plus','Perf Prime II','Community','Perf Prime III','Recovery'],
+      datasets:[{label:'Cancellations', data:[34,28,16,12,5,2], backgroundColor:red, borderRadius:5, borderSkipped:false}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{grid:{display:false},ticks:{font:tickFont}}}}
+  });
+}
+
+window.addEventListener('load', buildCharts);
+</script>
+
+</body>
+</html>
+<script>
+// LIVE DATA — fetch from GymMaster via Netlify function
+async function loadLiveData() {
+  try {
+    const membersRes = await fetch('/.netlify/functions/gymmaster?type=members');
+    const membersData = await membersRes.json();
+
+    if (membersData && membersData.members) {
+      const all = membersData.members;
+      const active = all.filter(m => m.status === 'active');
+      const holds = all.filter(m => m.status === 'hold');
+      const today = new Date();
+
+      const atRisk = active.filter(m => {
+        if (!m.last_visit) return true;
+        const diffDays = (today - new Date(m.last_visit)) / (1000*60*60*24);
+        return diffDays > 14;
+      });
+
+      // Update member table
+      const tableMembers = all.slice(0, 100).map(m => ({
+        name: (m.firstname || '') + ' ' + (m.lastname || ''),
+        type: m.membership_name || 'Unknown',
+        status: m.status === 'active' ? 'active' : m.status === 'hold' ? 'hold' : 'danger',
+        statusLabel: m.status || 'unknown',
+        joined: m.join_date ? new Date(m.join_date).toLocaleDateString('en-AU',{month:'short',year:'numeric'}) : '—',
+        lastVisit: m.last_visit ? new Date(m.last_visit).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Never',
+        visits: m.visit_count || 0
+      }));
+      renderMembers(tableMembers);
+
+      // Update at-risk alerts
+      if (atRisk.length > 0) {
+        document.querySelector('.alert-header').innerHTML = '⚠ At-risk members — no visit in 14+ days (' + atRisk.length + ' members)';
+        document.querySelector('.alert-grid').innerHTML = atRisk.slice(0,6).map(m => {
+          const days = Math.floor((today - new Date(m.last_visit)) / (1000*60*60*24));
+          return '<div class="alert-card"><div><div class="alert-name">' + m.firstname + ' ' + m.lastname + '</div><div class="alert-detail">' + (m.membership_name||'Member') + '</div></div><div class="alert-days">' + days + ' days</div></div>';
+        }).join('');
+      }
+
+      document.querySelector('.live-badge').innerHTML = '<div class="live-dot"></div>LIVE DATA';
+    }
+  } catch(err) {
+    console.log('Showing sample data:', err.message);
+  }
+}
+loadLiveData();
+</script>
