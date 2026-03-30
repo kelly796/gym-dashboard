@@ -1,7 +1,7 @@
 exports.handler = async function(event) {
   const API_KEY = process.env.GYMMASTER_API_KEY;
   const SITE_ID = process.env.GYMMASTER_SITE_ID;
-  const BASE = 'https://api.gymmaster.com/v1/' + SITE_ID;
+  const BASE = 'https://performotion.gymmasteronline.com/portal/api/v1/' + SITE_ID;
   const type = event.queryStringParameters && event.queryStringParameters.type;
 
   const corsHeaders = {
