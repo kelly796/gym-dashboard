@@ -1,60 +1,61 @@
-const API_KEY = process.env.GYMMASTER_API_KEY;
-const SITE_ID = process.env.GYMMASTER_SITE_ID;
-const BASE = `https://api.gymmaster.com/v1/${SITE_ID}`;
-
-const headers = {
-  'Authorization': `Bearer ${API_KEY}`,
-  'Content-Type': 'application/json'
-};
-
-async function fetchGM(path) {
-  const res = await fetch(`${BASE}${path}`, { headers });
-  if (!res.ok) throw new Error(`GymMaster API error: ${res.status} ${path}`);
-  return res.json();
-}
-
 exports.handler = async function(event) {
+  const API_KEY = process.env.GYMMASTER_API_KEY;
+  const BASE = 'https://performotion.gymmasteronline.com/portal/api/v1';
+  const type = event.queryStringParameters && event.queryStringParameters.type;
+
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+
+  const gmHeaders = {
+    'Authorization': 'Bearer ' + API_KEY,
     'Content-Type': 'application/json'
   };
 
   try {
-    const type = event.queryStringParameters && event.queryStringParameters.type;
+    let res, data;
 
     if (type === 'members') {
-      const data = await fetchGM('/members?status=all&limit=1000');
+      res = await fetch(BASE + '/members', { headers: gmHeaders });
+      data = await res.json();
+      return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
+    }
+
+    if (type === 'memberships') {
+      res = await fetch(BASE + '/memberships', { headers: gmHeaders });
+      data = await res.json();
       return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
     }
 
     if (type === 'cancellations') {
-      const data = await fetchGM('/members?status=cancelled&limit=1000');
-      return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
-    }
-
-    if (type === 'holds') {
-      const data = await fetchGM('/members?status=hold&limit=1000');
-      return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
-    }
-
-    if (type === 'visits') {
-      const data = await fetchGM('/visits?limit=1000');
+      res = await fetch(BASE + '/memberships/cancel', { headers: gmHeaders });
+      data = await res.json();
       return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
     }
 
     if (type === 'classes') {
-      const data = await fetchGM('/classes?limit=500');
+      res = await fetch(BASE + '/booking/classes/schedule', { headers: gmHeaders });
+      data = await res.json();
       return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
     }
 
-    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Missing type parameter' }) };
+    if (type === 'settings') {
+      res = await fetch(BASE + '/settings', { headers: gmHeaders });
+      data = await res.json();
+      return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
+    }
 
-  } catch (err) {
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: err.message })
+    // Default — test connection
+    res = await fetch(BASE + '/version', { headers: gmHeaders });
+    data = await res.json();
+    return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
+
+  } catch(err) {
+    return { 
+      statusCode: 500, 
+      headers: corsHeaders, 
+      body: JSON.stringify({ error: err.message }) 
     };
   }
 };
