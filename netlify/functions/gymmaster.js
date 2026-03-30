@@ -1,5 +1,5 @@
 exports.handler = async function(event) {
-  const API_KEY = process.env.GYMMASTER_API_KEY;
+  const API_KEY = process.env.api_key;
   const BASE = 'https://performotion.gymmasteronline.com/portal/api/v1';
   const type = event.queryStringParameters && event.queryStringParameters.type;
 
@@ -35,7 +35,6 @@ exports.handler = async function(event) {
       return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
     }
 
-    // Default test
     res = await fetch(BASE + '/version?api_key=' + API_KEY);
     data = await res.json();
     return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
