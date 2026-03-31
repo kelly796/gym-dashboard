@@ -174,10 +174,14 @@
   <div class="section-label">Membership types — current active</div>
   <div class="card" id="membership-types-card">
     <div id="type-rows">
-      <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Base</span><div class="type-bar-bg"><div class="type-bar" id="bar-t1" style="width:100%;background:#0f2350"></div></div><span id="count-t1" class="type-count">208</span><span id="pct-t1" class="type-pct">100%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Base</span><div class="type-bar-bg"><div class="type-bar" id="bar-t1" style="width:0%;background:#0f2350"></div></div><span id="count-t1" class="type-count">0</span><span id="pct-t1" class="type-pct">0%</span></div>
       <div class="type-row"><div class="type-dot" style="background:#2a52a0"></div><span class="type-name">Base +</span><div class="type-bar-bg"><div class="type-bar" id="bar-t2" style="width:0%;background:#2a52a0"></div></div><span id="count-t2" class="type-count">0</span><span id="pct-t2" class="type-pct">0%</span></div>
       <div class="type-row"><div class="type-dot" style="background:#4a72c0"></div><span class="type-name">Perf Base Yearly</span><div class="type-bar-bg"><div class="type-bar" id="bar-t3" style="width:0%;background:#4a72c0"></div></div><span id="count-t3" class="type-count">0</span><span id="pct-t3" class="type-pct">0%</span></div>
       <div class="type-row"><div class="type-dot" style="background:#7a9ed5"></div><span class="type-name">Perf Base + Yearly</span><div class="type-bar-bg"><div class="type-bar" id="bar-t4" style="width:0%;background:#7a9ed5"></div></div><span id="count-t4" class="type-count">0</span><span id="pct-t4" class="type-pct">0%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#5e88c5"></div><span class="type-name">Perf Core</span><div class="type-bar-bg"><div class="type-bar" id="bar-t5" style="width:0%;background:#5e88c5"></div></div><span id="count-t5" class="type-count">0</span><span id="pct-t5" class="type-pct">0%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#8aadd8"></div><span class="type-name">Perf Plus</span><div class="type-bar-bg"><div class="type-bar" id="bar-t6" style="width:0%;background:#8aadd8"></div></div><span id="count-t6" class="type-count">0</span><span id="pct-t6" class="type-pct">0%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#aac4e0"></div><span class="type-name">Perf Prime</span><div class="type-bar-bg"><div class="type-bar" id="bar-t7" style="width:0%;background:#aac4e0"></div></div><span id="count-t7" class="type-count">0</span><span id="pct-t7" class="type-pct">0%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#cdd9ec"></div><span class="type-name">Community</span><div class="type-bar-bg"><div class="type-bar" id="bar-t8" style="width:0%;background:#cdd9ec"></div></div><span id="count-t8" class="type-count">0</span><span id="pct-t8" class="type-pct">0%</span></div>
     </div>
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
       <a id="recovery-link" href="#" onclick="alert('Set your Recovery booking URL here'); return false;" style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.82rem;font-weight:500;color:var(--accent2);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--accent2);border-radius:6px;">
@@ -399,15 +403,13 @@ function buildCharts() {
   window._charts.signup = new Chart(document.getElementById('c-signup'), {
     type:'bar',
     data:{
-      labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      labels:['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26'],
       datasets:[
-        {label:'2025 sign-ups', data:[15,12,15,13,20,8,22,15,15,20,13,11], backgroundColor:navy, borderRadius:4, borderSkipped:false},
-        {label:'2025 cancellations', data:[0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:light, borderRadius:4, borderSkipped:false},
-        {label:'2026 sign-ups', data:[8,12,17,0,0,0,0,0,0,0,0,0], backgroundColor:blue, borderRadius:4, borderSkipped:false},
-        {label:'2026 cancellations', data:[0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:red, borderRadius:4, borderSkipped:false}
+        {label:'Sign-ups', data:[15,12,15,13,20,8,22,15,15,20,13,11,8,12,17], backgroundColor:navy, borderRadius:4, borderSkipped:false},
+        {label:'Cancellations', data:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:red, borderRadius:4, borderSkipped:false}
       ]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:8}}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:8}}},scales:{x:{grid:{display:false},ticks:{font:tickFont,maxRotation:45}},y:{ticks:{font:tickFont}}}}
   });
 
   window._charts.churn = new Chart(document.getElementById('c-retention'), {
@@ -479,6 +481,10 @@ function mapMemberName(name) {
   const n = (name || '').toLowerCase();
   if (n.includes('perf base + yearly') || n.includes('perf base plus yearly') || (n.includes('perf') && n.includes('+') && n.includes('year'))) return 'Perf Base + Yearly';
   if (n.includes('perf base yearly') || (n.includes('perf') && n.includes('year') && !n.includes('+'))) return 'Perf Base Yearly';
+  if (n.includes('perf prime')) return 'Perf Prime';
+  if (n.includes('perf plus')) return 'Perf Plus';
+  if (n.includes('perf core')) return 'Perf Core';
+  if (n.includes('community')) return 'Community';
   if (n.includes('base +') || n.includes('base plus') || n.includes('base+') || n.includes('concession')) return 'Base +';
   return 'Base';
 }
@@ -519,13 +525,21 @@ async function loadLiveData() {
       all.forEach(m => { if (!m.join_date) return; const k = m.join_date.substring(0,7); signupsByMonth[k]=(signupsByMonth[k]||0)+1; });
       all.filter(m=>m.cancel_date).forEach(m => { const k=m.cancel_date.substring(0,7); cancelsByMonth[k]=(cancelsByMonth[k]||0)+1; });
 
+      // Build 15-month continuous timeline: Jan 2025 → current month 2026
       const pad = i => String(i+1).padStart(2,'0');
+      const allMonths = [
+        ...Array.from({length:12},(_,i)=>'2025-'+pad(i)),
+        ...Array.from({length:12},(_,i)=>'2026-'+pad(i)).filter(k => k <= (today.getFullYear()+'-'+pad(today.getMonth())))
+      ];
       if (window._charts && window._charts.signup) {
         const ds = window._charts.signup.data.datasets;
-        ds[0].data = Array.from({length:12},(_,i)=>signupsByMonth['2025-'+pad(i)]||0);
-        ds[1].data = Array.from({length:12},(_,i)=>cancelsByMonth['2025-'+pad(i)]||0);
-        ds[2].data = Array.from({length:12},(_,i)=>signupsByMonth['2026-'+pad(i)]||0);
-        ds[3].data = Array.from({length:12},(_,i)=>cancelsByMonth['2026-'+pad(i)]||0);
+        ds[0].data = allMonths.map(k => signupsByMonth[k]||0);
+        ds[1].data = allMonths.map(k => cancelsByMonth[k]||0);
+        window._charts.signup.data.labels = allMonths.map(k => {
+          const [y,m] = k.split('-');
+          const mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1];
+          return mon + ' ' + y.slice(2);
+        });
         window._charts.signup.update();
       }
 
@@ -533,12 +547,16 @@ async function loadLiveData() {
       const typeCount = {};
       active.forEach(m => { const n = mapMemberName(m.membership_name); typeCount[n]=(typeCount[n]||0)+1; });
       const total = active.length || 1;
-      // Update 4 fixed membership type slots
+      // Update 8 fixed membership type slots
       const TYPES = [
         {name:'Base', id:'t1', color:'#0f2350'},
         {name:'Base +', id:'t2', color:'#2a52a0'},
         {name:'Perf Base Yearly', id:'t3', color:'#4a72c0'},
-        {name:'Perf Base + Yearly', id:'t4', color:'#7a9ed5'}
+        {name:'Perf Base + Yearly', id:'t4', color:'#7a9ed5'},
+        {name:'Perf Core', id:'t5', color:'#5e88c5'},
+        {name:'Perf Plus', id:'t6', color:'#8aadd8'},
+        {name:'Perf Prime', id:'t7', color:'#aac4e0'},
+        {name:'Community', id:'t8', color:'#cdd9ec'}
       ];
       TYPES.forEach(t => {
         const count = typeCount[t.name] || 0;
