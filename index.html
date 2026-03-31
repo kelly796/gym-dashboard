@@ -51,6 +51,7 @@
     .metric::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; background: var(--accent-color, var(--accent)); }
     .metric.warn { --accent-color: var(--warn); }
     .metric.danger { --accent-color: var(--danger); }
+    .metric.success { --accent-color: var(--success); }
     .metric.info { --accent-color: var(--accent2); }
     .metric-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
     .metric-value { font-size: 28px; font-weight: 300; letter-spacing: -0.03em; line-height: 1; color: var(--text); }
@@ -136,14 +137,13 @@
 
 <!-- OVERVIEW -->
 <div class="page active" id="page-overview">
-  <div class="section-label">Overview — all time since 2021</div>
+  <div class="section-label">Overview — current snapshot</div>
   <div class="metrics">
-    <div class="metric"><div class="metric-label">Active members</div><div class="metric-value">847</div><div class="metric-sub up">↑ +34 this month</div></div>
-    <div class="metric info"><div class="metric-label">Total sign-ups since 2021</div><div class="metric-value">1,105</div><div class="metric-sub">All time</div></div>
-    <div class="metric"><div class="metric-label">Avg. member lifetime</div><div class="metric-value">14 <span>mo</span></div><div class="metric-sub">All time average</div></div>
-    <div class="metric danger"><div class="metric-label">Cancellations MTD</div><div class="metric-value">18</div><div class="metric-sub down">↑ +3 vs last month</div></div>
-    <div class="metric warn"><div class="metric-label">Members on hold</div><div class="metric-value">23</div><div class="metric-sub">Active holds</div></div>
-    <div class="metric"><div class="metric-label">Retention rate</div><div class="metric-value">91 <span>%</span></div><div class="metric-sub up">↑ +2% vs last month</div></div>
+    <div class="metric"><div class="metric-label">Current members</div><div id="stat-active" class="metric-value">249</div><div class="metric-sub">Active now</div></div>
+    <div class="metric warn"><div class="metric-label">Members on hold</div><div id="stat-hold" class="metric-value">7</div><div class="metric-sub">Active holds</div></div>
+    <div class="metric info"><div class="metric-label">Sign-ups this month</div><div id="stat-signups-mtd" class="metric-value">17</div><div class="metric-sub" id="stat-month-label">March 2026</div></div>
+    <div class="metric"><div class="metric-label">Avg. member lifetime</div><div id="stat-lifetime" class="metric-value">20 <span>mo</span></div><div class="metric-sub">All active members</div></div>
+    <div class="metric success"><div class="metric-label">Retention rate</div><div id="stat-retention" class="metric-value">97 <span>%</span></div><div class="metric-sub" id="stat-retention-sub">Active vs total</div></div>
   </div>
 
   <div class="alert-strip">
@@ -165,20 +165,23 @@
       <div style="position:relative;height:200px;"><canvas id="c-signup"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-title">Retention rate</div>
+      <div class="card-title">Churn rate</div>
       <div class="card-sub">Last 12 months</div>
       <div style="position:relative;height:200px;"><canvas id="c-retention"></canvas></div>
     </div>
   </div>
 
   <div class="section-label">Membership types — current active</div>
-  <div class="card">
-    <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Perf Core</span><div class="type-bar-bg"><div class="type-bar" style="width:38%;background:#0f2350"></div></div><span class="type-count">322</span><span class="type-pct">38%</span></div>
-    <div class="type-row"><div class="type-dot" style="background:#2a52a0"></div><span class="type-name">Perf Plus</span><div class="type-bar-bg"><div class="type-bar" style="width:24%;background:#2a52a0"></div></div><span class="type-count">203</span><span class="type-pct">24%</span></div>
-    <div class="type-row"><div class="type-dot" style="background:#4a72c0"></div><span class="type-name">Perf Prime II</span><div class="type-bar-bg"><div class="type-bar" style="width:16%;background:#4a72c0"></div></div><span class="type-count">136</span><span class="type-pct">16%</span></div>
-    <div class="type-row"><div class="type-dot" style="background:#7a9ed5"></div><span class="type-name">Perf Prime III</span><div class="type-bar-bg"><div class="type-bar" style="width:11%;background:#7a9ed5"></div></div><span class="type-count">93</span><span class="type-pct">11%</span></div>
-    <div class="type-row"><div class="type-dot" style="background:#b5c4e0"></div><span class="type-name">Community Membership</span><div class="type-bar-bg"><div class="type-bar" style="width:8%;background:#b5c4e0"></div></div><span class="type-count">68</span><span class="type-pct">8%</span></div>
-    <div class="type-row"><div class="type-dot" style="background:#d5dff0"></div><span class="type-name">Recovery Book-ins</span><div class="type-bar-bg"><div class="type-bar" style="width:3%;background:#d5dff0"></div></div><span class="type-count">25</span><span class="type-pct">3%</span></div>
+  <div class="card" id="membership-types-card">
+    <div id="type-rows">
+      <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Base</span><div class="type-bar-bg"><div class="type-bar" style="width:98%;background:#0f2350"></div></div><span class="type-count" id="count-base">204</span><span class="type-pct" id="pct-base">98%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#2a52a0"></div><span class="type-name">Base + added</span><div class="type-bar-bg"><div class="type-bar" style="width:2%;background:#2a52a0"></div></div><span class="type-count" id="count-baseplus">4</span><span class="type-pct" id="pct-baseplus">2%</span></div>
+    </div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <a id="recovery-link" href="#" onclick="alert('Set your Recovery booking URL here'); return false;" style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.82rem;font-weight:500;color:var(--accent2);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--accent2);border-radius:6px;">
+        📅 Recovery book-ins <span style="font-size:0.7rem;color:var(--muted)">(link to be connected)</span>
+      </a>
+    </div>
   </div>
   <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
 </div>
@@ -390,25 +393,28 @@ function buildCharts() {
   var navy = '#0f2350', blue = '#2a52a0', light = '#b5c4e0', red = '#c0392b', muted = '#6b7a9e';
   var tickFont = { size: 11, family: 'DM Mono' };
 
-  new Chart(document.getElementById('c-signup'), {
+  window._charts = window._charts || {};
+  window._charts.signup = new Chart(document.getElementById('c-signup'), {
     type:'bar',
     data:{
-      labels:['2021','2022','2023','2024','2025','2026'],
+      labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
       datasets:[
-        {label:'Sign-ups', data:[142,198,223,267,241,34], backgroundColor:navy, borderRadius:5, borderSkipped:false},
-        {label:'Cancellations', data:[48,62,71,84,79,18], backgroundColor:light, borderRadius:5, borderSkipped:false}
+        {label:'2025 sign-ups', data:[15,12,15,13,20,8,22,15,15,20,13,11], backgroundColor:navy, borderRadius:4, borderSkipped:false},
+        {label:'2025 cancellations', data:[0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:light, borderRadius:4, borderSkipped:false},
+        {label:'2026 sign-ups', data:[8,12,17,0,0,0,0,0,0,0,0,0], backgroundColor:blue, borderRadius:4, borderSkipped:false},
+        {label:'2026 cancellations', data:[0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:red, borderRadius:4, borderSkipped:false}
       ]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:8}}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
   });
 
-  new Chart(document.getElementById('c-retention'), {
+  window._charts.churn = new Chart(document.getElementById('c-retention'), {
     type:'line',
     data:{
       labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
-      datasets:[{label:'Retention %', data:[88,91,87,93,90,85,89,92,94,90,89,91], borderColor:blue, backgroundColor:'rgba(42,82,160,0.07)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:blue, pointBorderColor:'transparent'}]
+      datasets:[{label:'Churn %', data:[2.1,1.8,2.4,1.6,2.0,2.8,1.9,1.5,1.3,1.7,2.0,1.6], borderColor:red, backgroundColor:'rgba(192,57,43,0.07)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:red, pointBorderColor:'transparent'}]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{min:75,max:100,ticks:{font:tickFont,callback:function(v){return v+'%'}}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{min:0,max:6,ticks:{font:tickFont,callback:function(v){return v+'%'}}}}}
   });
 
   new Chart(document.getElementById('c-bookings'), {
@@ -467,6 +473,12 @@ window.addEventListener('load', buildCharts);
 </html>
 <script>
 // LIVE DATA — fetch from GymMaster via Netlify function
+function mapMemberName(name) {
+  const n = (name || '').toLowerCase();
+  if (n.includes('concession')) return 'Base + added';
+  return 'Base';
+}
+
 async function loadLiveData() {
   try {
     const membersRes = await fetch('/.netlify/functions/gymmaster?type=members');
@@ -477,39 +489,82 @@ async function loadLiveData() {
       const active = all.filter(m => m.status === 'active');
       const holds = all.filter(m => m.status === 'hold');
       const today = new Date();
+      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const el = id => document.getElementById(id);
 
-      const atRisk = active.filter(m => {
-        if (!m.last_visit) return true;
-        const diffDays = (today - new Date(m.last_visit)) / (1000*60*60*24);
-        return diffDays > 14;
-      });
+      // OVERVIEW STATS
+      if (el('stat-active')) el('stat-active').textContent = active.length;
+      if (el('stat-hold')) el('stat-hold').textContent = holds.length;
 
-      // Update member table
-      const tableMembers = all.slice(0, 100).map(m => ({
-        name: (m.firstname || '') + ' ' + (m.lastname || ''),
-        type: m.membership_name || 'Unknown',
-        status: m.status === 'active' ? 'active' : m.status === 'hold' ? 'hold' : 'danger',
-        statusLabel: m.status || 'unknown',
-        joined: m.join_date ? new Date(m.join_date).toLocaleDateString('en-AU',{month:'short',year:'numeric'}) : '—',
-        lastVisit: m.last_visit ? new Date(m.last_visit).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Never',
-        visits: m.visit_count || 0
-      }));
-      renderMembers(tableMembers);
+      const yr = today.getFullYear(), mo = today.getMonth();
+      const mtd = all.filter(m => { if (!m.join_date) return false; const d = new Date(m.join_date); return d.getFullYear()===yr && d.getMonth()===mo; });
+      if (el('stat-signups-mtd')) el('stat-signups-mtd').textContent = mtd.length;
+      if (el('stat-month-label')) el('stat-month-label').textContent = monthNames[mo] + ' ' + yr;
 
-      // Update at-risk alerts
-      if (atRisk.length > 0) {
-        document.querySelector('.alert-header').innerHTML = '⚠ At-risk members — no visit in 14+ days (' + atRisk.length + ' members)';
-        document.querySelector('.alert-grid').innerHTML = atRisk.slice(0,6).map(m => {
-          const days = Math.floor((today - new Date(m.last_visit)) / (1000*60*60*24));
-          return '<div class="alert-card"><div><div class="alert-name">' + m.firstname + ' ' + m.lastname + '</div><div class="alert-detail">' + (m.membership_name||'Member') + '</div></div><div class="alert-days">' + days + ' days</div></div>';
+      const lifetimes = active.filter(m => m.join_date).map(m => (today - new Date(m.join_date)) / (1000*60*60*24*30.44));
+      const avgLT = lifetimes.length ? Math.round(lifetimes.reduce((a,b)=>a+b,0)/lifetimes.length) : 0;
+      if (el('stat-lifetime')) el('stat-lifetime').innerHTML = avgLT + ' <span>mo</span>';
+
+      const totalCurrent = active.length + holds.length;
+      const retention = totalCurrent > 0 ? Math.round((active.length / totalCurrent) * 100) : 0;
+      if (el('stat-retention')) el('stat-retention').innerHTML = retention + ' <span>%</span>';
+      if (el('stat-retention-sub')) el('stat-retention-sub').textContent = active.length + ' active of ' + totalCurrent + ' current';
+
+      // SIGN-UPS CHART: update with real monthly data
+      const signupsByMonth = {}, cancelsByMonth = {};
+      all.forEach(m => { if (!m.join_date) return; const k = m.join_date.substring(0,7); signupsByMonth[k]=(signupsByMonth[k]||0)+1; });
+      all.filter(m=>m.cancel_date).forEach(m => { const k=m.cancel_date.substring(0,7); cancelsByMonth[k]=(cancelsByMonth[k]||0)+1; });
+
+      const pad = i => String(i+1).padStart(2,'0');
+      if (window._charts && window._charts.signup) {
+        const ds = window._charts.signup.data.datasets;
+        ds[0].data = Array.from({length:12},(_,i)=>signupsByMonth['2025-'+pad(i)]||0);
+        ds[1].data = Array.from({length:12},(_,i)=>cancelsByMonth['2025-'+pad(i)]||0);
+        ds[2].data = Array.from({length:12},(_,i)=>signupsByMonth['2026-'+pad(i)]||0);
+        ds[3].data = Array.from({length:12},(_,i)=>cancelsByMonth['2026-'+pad(i)]||0);
+        window._charts.signup.update();
+      }
+
+      // MEMBERSHIP TYPE BREAKDOWN
+      const typeCount = {};
+      active.forEach(m => { const n = mapMemberName(m.membership_name); typeCount[n]=(typeCount[n]||0)+1; });
+      const total = active.length || 1;
+      const typeRows = document.getElementById('type-rows');
+      if (typeRows) {
+        const colors = {'Base':'#0f2350','Base + added':'#2a52a0'};
+        typeRows.innerHTML = Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).map(([name,count])=>{
+          const pct = Math.round(count/total*100);
+          const col = colors[name]||'#4a72c0';
+          return '<div class="type-row"><div class="type-dot" style="background:'+col+'"></div><span class="type-name">'+name+'</span><div class="type-bar-bg"><div class="type-bar" style="width:'+pct+'%;background:'+col+'"></div></div><span class="type-count">'+count+'</span><span class="type-pct">'+pct+'%</span></div>';
         }).join('');
       }
 
-      document.querySelector('.live-badge').innerHTML = '<div class="live-dot"></div>LIVE DATA';
+      // AT-RISK ALERTS
+      const atRisk = active.filter(m => { if (!m.last_visit) return false; return (today-new Date(m.last_visit))/(1000*60*60*24)>14; });
+      if (atRisk.length > 0) {
+        const hdr = document.querySelector('.alert-header');
+        const grid = document.querySelector('.alert-grid');
+        if (hdr) hdr.innerHTML = '⚠ At-risk members — no visit in 14+ days (' + atRisk.length + ' members)';
+        if (grid) grid.innerHTML = atRisk.slice(0,6).map(m => {
+          const days = Math.floor((today-new Date(m.last_visit))/(1000*60*60*24));
+          return '<div class="alert-card"><div><div class="alert-name">'+m.firstname+' '+m.lastname+'</div><div class="alert-detail">'+mapMemberName(m.membership_name)+'</div></div><div class="alert-days">'+days+' days</div></div>';
+        }).join('');
+      }
+
+      // MEMBER TABLE
+      const tableMembers = all.slice(0,100).map(m => ({
+        name:(m.firstname||'')+' '+(m.lastname||''), type:mapMemberName(m.membership_name),
+        status:m.status, statusLabel:m.status||'unknown',
+        joined:m.join_date ? new Date(m.join_date).toLocaleDateString('en-AU',{month:'short',year:'numeric'}) : '—',
+        lastVisit:m.last_visit ? new Date(m.last_visit).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Never',
+        visits:m.visit_count||0
+      }));
+      renderMembers(tableMembers);
+
+      const badge = document.querySelector('.live-badge');
+      if (badge) badge.innerHTML = '<div class="live-dot"></div>LIVE DATA';
     }
-  } catch(err) {
-    console.log('Showing sample data:', err.message);
-  }
+  } catch(err) { console.log('Showing sample data:', err.message); }
 }
 loadLiveData();
 </script>
