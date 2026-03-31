@@ -1,5 +1,5 @@
 exports.handler = async function(event) {
-  const API_KEY = process.env.api_key;
+  const API_KEY = process.env.GYMMASTER_API_KEY;
   const BASE = 'https://performotion.gymmasteronline.com/portal/api/v1';
   const type = event.queryStringParameters && event.queryStringParameters.type;
 
