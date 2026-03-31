@@ -174,8 +174,10 @@
   <div class="section-label">Membership types — current active</div>
   <div class="card" id="membership-types-card">
     <div id="type-rows">
-      <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Base</span><div class="type-bar-bg"><div class="type-bar" style="width:98%;background:#0f2350"></div></div><span class="type-count" id="count-base">204</span><span class="type-pct" id="pct-base">98%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#2a52a0"></div><span class="type-name">Base + added</span><div class="type-bar-bg"><div class="type-bar" style="width:2%;background:#2a52a0"></div></div><span class="type-count" id="count-baseplus">4</span><span class="type-pct" id="pct-baseplus">2%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Base</span><div class="type-bar-bg"><div class="type-bar" id="bar-t1" style="width:100%;background:#0f2350"></div></div><span id="count-t1" class="type-count">208</span><span id="pct-t1" class="type-pct">100%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#2a52a0"></div><span class="type-name">Base +</span><div class="type-bar-bg"><div class="type-bar" id="bar-t2" style="width:0%;background:#2a52a0"></div></div><span id="count-t2" class="type-count">0</span><span id="pct-t2" class="type-pct">0%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#4a72c0"></div><span class="type-name">Perf Base Yearly</span><div class="type-bar-bg"><div class="type-bar" id="bar-t3" style="width:0%;background:#4a72c0"></div></div><span id="count-t3" class="type-count">0</span><span id="pct-t3" class="type-pct">0%</span></div>
+      <div class="type-row"><div class="type-dot" style="background:#7a9ed5"></div><span class="type-name">Perf Base + Yearly</span><div class="type-bar-bg"><div class="type-bar" id="bar-t4" style="width:0%;background:#7a9ed5"></div></div><span id="count-t4" class="type-count">0</span><span id="pct-t4" class="type-pct">0%</span></div>
     </div>
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
       <a id="recovery-link" href="#" onclick="alert('Set your Recovery booking URL here'); return false;" style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.82rem;font-weight:500;color:var(--accent2);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--accent2);border-radius:6px;">
@@ -475,7 +477,9 @@ window.addEventListener('load', buildCharts);
 // LIVE DATA — fetch from GymMaster via Netlify function
 function mapMemberName(name) {
   const n = (name || '').toLowerCase();
-  if (n.includes('concession')) return 'Base + added';
+  if (n.includes('perf base + yearly') || n.includes('perf base plus yearly') || (n.includes('perf') && n.includes('+') && n.includes('year'))) return 'Perf Base + Yearly';
+  if (n.includes('perf base yearly') || (n.includes('perf') && n.includes('year') && !n.includes('+'))) return 'Perf Base Yearly';
+  if (n.includes('base +') || n.includes('base plus') || n.includes('base+') || n.includes('concession')) return 'Base +';
   return 'Base';
 }
 
@@ -529,15 +533,23 @@ async function loadLiveData() {
       const typeCount = {};
       active.forEach(m => { const n = mapMemberName(m.membership_name); typeCount[n]=(typeCount[n]||0)+1; });
       const total = active.length || 1;
-      const typeRows = document.getElementById('type-rows');
-      if (typeRows) {
-        const colors = {'Base':'#0f2350','Base + added':'#2a52a0'};
-        typeRows.innerHTML = Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).map(([name,count])=>{
-          const pct = Math.round(count/total*100);
-          const col = colors[name]||'#4a72c0';
-          return '<div class="type-row"><div class="type-dot" style="background:'+col+'"></div><span class="type-name">'+name+'</span><div class="type-bar-bg"><div class="type-bar" style="width:'+pct+'%;background:'+col+'"></div></div><span class="type-count">'+count+'</span><span class="type-pct">'+pct+'%</span></div>';
-        }).join('');
-      }
+      // Update 4 fixed membership type slots
+      const TYPES = [
+        {name:'Base', id:'t1', color:'#0f2350'},
+        {name:'Base +', id:'t2', color:'#2a52a0'},
+        {name:'Perf Base Yearly', id:'t3', color:'#4a72c0'},
+        {name:'Perf Base + Yearly', id:'t4', color:'#7a9ed5'}
+      ];
+      TYPES.forEach(t => {
+        const count = typeCount[t.name] || 0;
+        const pct = total > 0 ? Math.round(count/total*100) : 0;
+        const bar = document.getElementById('bar-'+t.id);
+        const cnt = document.getElementById('count-'+t.id);
+        const pctEl = document.getElementById('pct-'+t.id);
+        if (bar) bar.style.width = Math.max(pct, count > 0 ? 1 : 0) + '%';
+        if (cnt) cnt.textContent = count;
+        if (pctEl) pctEl.textContent = pct + '%';
+      });
 
       // AT-RISK ALERTS
       const atRisk = active.filter(m => { if (!m.last_visit) return false; return (today-new Date(m.last_visit))/(1000*60*60*24)>14; });
