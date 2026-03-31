@@ -14,7 +14,20 @@ exports.handler = async function(event) {
     if (type === 'members') {
       res = await fetch(BASE + '/members?api_key=' + API_KEY);
       data = await res.json();
-      return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
+            const members = (data.result || []).map(m => {
+                      const s = (m.status || '').toLowerCase();
+                      return {
+                                  id: m.id,
+                                  firstname: m.firstname || '',
+                                  lastname: m.surname || '',
+                                  status: ['expired','cancelled','inactive'].includes(s) ? 'cancelled' : ['on hold','hold','suspended'].includes(s) ? 'hold' : 'active',
+                                  membership_name: s === 'current' ? 'Standard Member' : m.status || 'Unknown',
+                                  join_date: m.joindate || null,
+                                  last_visit: m.lastvisit || null,
+                                  visit_count: m.visitcount || 0
+                      };
+            });
+      return { statusCode: 200, headers: corsHeaders, body: JSON.stringify({ members }) };
     }
 
     if (type === 'memberships') {
