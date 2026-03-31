@@ -14,19 +14,23 @@ exports.handler = async function(event) {
     if (type === 'members') {
       res = await fetch(BASE + '/members?api_key=' + API_KEY);
       data = await res.json();
-            const members = (data.result || []).map(m => {
-                      const s = (m.status || '').toLowerCase();
-                      return {
-                                  id: m.id,
-                                  firstname: m.firstname || '',
-                                  lastname: m.surname || '',
-                                  status: ['expired','cancelled','inactive'].includes(s) ? 'cancelled' : ['on hold','hold','suspended'].includes(s) ? 'hold' : 'active',
-                                  membership_name: s === 'current' ? 'Standard Member' : m.status || 'Unknown',
-                                  join_date: m.joindate || null,
-                                  last_visit: m.lastvisit || null,
-                                  visit_count: m.visitcount || 0
-                      };
-            });
+      const members = (data.result || []).map(m => {
+        const s = (m.status || '').toLowerCase();
+        const statusMapped =
+          ['expired','cancelled','inactive','recently expired'].includes(s) ? 'cancelled' :
+          ['on hold','hold','suspended'].includes(s) ? 'hold' : 'active';
+        return {
+          id: m.id,
+          firstname: m.firstname || '',
+          lastname: m.surname || '',
+          status: statusMapped,
+          membership_name: m.membership_name || m.membershipname || m.membershiptypename || m.membership || 'Standard Member',
+          join_date: m.joindate || null,
+          cancel_date: m.leavedate || m.canceldate || m.expirydate || null,
+          last_visit: m.lastvisit || null,
+          visit_count: m.visitcount || 0
+        };
+      });
       return { statusCode: 200, headers: corsHeaders, body: JSON.stringify({ members }) };
     }
 
@@ -53,10 +57,10 @@ exports.handler = async function(event) {
     return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(data) };
 
   } catch(err) {
-    return { 
-      statusCode: 500, 
-      headers: corsHeaders, 
-      body: JSON.stringify({ error: err.message }) 
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: err.message })
     };
   }
 };
