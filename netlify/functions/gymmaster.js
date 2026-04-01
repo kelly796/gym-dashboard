@@ -6,25 +6,17 @@ exports.handler = async function(event) {
   try {
     let r, d;
 
-    if (type === 'debug') {
-      // Test multiple URL formats to find what GymMaster accepts
-      const urls = [
-        BASE + '/members?api_key=' + KEY,
-        BASE + '/member?api_key=' + KEY,
-        BASE + '/clients?api_key=' + KEY,
-        BASE + '/client?api_key=' + KEY,
-        'https://performotion.gymmasteronline.com/portal/api/' + KEY + '/members',
-        'https://performotion.gymmasteronline.com/portal/api/members?api_key=' + KEY,
-      ];
-      const results = [];
-      for (const url of urls) {
-        try {
-          const resp = await fetch(url);
-          const txt = await resp.text();
-          results.push({ url: url.replace(KEY,'***'), status: resp.status, snippet: txt.slice(0,100) });
-        } catch(e) { results.push({ url: url.replace(KEY,'***'), error: e.message }); }
-      }
-      return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
+    if (type === 'rawdebug') {
+      // Return raw fields from GymMaster for the first active member
+      r = await fetch(BASE + '/members?api_key=' + KEY);
+      d = await r.json();
+      const rows = d.result || [];
+      const active = rows.find(m => (m.status||'').toLowerCase() === 'current') || rows[0];
+      return { statusCode: 200, headers: cors, body: JSON.stringify({
+        totalRows: rows.length,
+        rawFields: active ? Object.keys(active) : [],
+        sampleMember: active || null
+      })};
     }
 
     if (type === 'members') {
@@ -40,7 +32,7 @@ exports.handler = async function(event) {
           status: ['expired','cancelled','inactive','recently expired'].includes(s) ? 'cancelled'
                 : ['on hold','hold','suspended'].includes(s) ? 'hold' : 'active',
           membership_name: m.membershiptypename || m.membershiptype || m.membership_name
-                        || (s === 'current' ? 'Standard Member' : (m.status || 'Standard Member')),
+                        || m.membershipName || m.plan || m.planname || m.plan_name || '',
           join_date: m.joindate || m.join_date || null,
           cancel_date: m.leavedate || m.canceldate || m.cancel_date || null,
           last_visit: m.lastvisit || m.last_visit || null,
