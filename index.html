@@ -597,5 +597,35 @@ async function loadLiveData() {
     }
   } catch(err) { console.log('Showing sample data:', err.message); }
 }
+// Preserve bar values — API has no membership type per member
+const _origLLD = loadLiveData;
+loadLiveData = async function() {
+  const bs = {};
+  for (let i=1;i<=8;i++) {
+    const b=document.getElementById('bar-t'+i), p=document.getElementById('pct-t'+i);
+    bs[i] = {w: b ? b.style.width : '', pt: p ? p.textContent : ''};
+  }
+  await _origLLD();
+  const allZero = [1,2,3,4,5,6,7,8].every(function(i) {
+    const b = document.getElementById('bar-t'+i);
+    return !b || !b.style.width || b.style.width === '0%';
+  });
+  if (allZero) {
+    for (let i=1;i<=8;i++) {
+      const b=document.getElementById('bar-t'+i), p=document.getElementById('pct-t'+i);
+      if (b) b.style.width = bs[i].w;
+      if (p) p.textContent = bs[i].pt;
+    }
+  }
+};
+// Show only active/hold members, sorted by most recent join date
+const _origRM = renderMembers;
+renderMembers = function(data) {
+  _origRM(
+    data.filter(function(m){ return m.status === 'active' || m.status === 'hold'; })
+        .sort(function(a,b){ return new Date(b.join_date||0) - new Date(a.join_date||0); })
+        .slice(0, 200)
+  );
+};
 loadLiveData();
 </script>
