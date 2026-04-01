@@ -13,7 +13,59 @@ exports.handler = async function(event) {
   const KEY = process.env.GYMMASTER_API_KEY;
   const BASE = 'https://performotion.gymmasteronline.com';
   const type = (event.queryStringParameters || {}).type;
-  if (type === 'membership-counts') {
+    // ── Classes ──────────────────────────────────────────────────
+  if (type === 'classes') {
+    // Class definitions / types
+    const paths = ['classes','class','classtype','class_types','classtypes'];
+    let result = null;
+    for (const p of paths) {
+      try {
+        const r = await fetch(`${BASE}/portal_api/v1/${p}?api_key=${KEY}`);
+        if (r.ok) { const d = await r.json(); result = { path: p, status: r.status, data: d }; break; }
+        else { if (!result) result = { path: p, status: r.status }; }
+      } catch(e) {}
+    }
+    return { statusCode: 200, body: JSON.stringify(result || { error: 'no class endpoint found' }),
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
+  }
+
+  if (type === 'schedule') {
+    // Class schedule / timetable
+    const paths = ['classschedule','class_schedule','schedule','timetable','classtimetable','class_timetable'];
+    const today = new Date().toISOString().split('T')[0];
+    const weekEnd = new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0];
+    let result = null;
+    for (const p of paths) {
+      try {
+        const r = await fetch(`${BASE}/portal_api/v1/${p}?api_key=${KEY}&start_date=${today}&end_date=${weekEnd}`);
+        if (r.ok) { const d = await r.json(); result = { path: p, status: r.status, data: d }; break; }
+        else {
+          // Try without date params
+          const r2 = await fetch(`${BASE}/portal_api/v1/${p}?api_key=${KEY}`);
+          if (r2.ok) { const d2 = await r2.json(); result = { path: p, status: r2.status, data: d2 }; break; }
+          if (!result) result = { path: p, status: r.status };
+        }
+      } catch(e) {}
+    }
+    return { statusCode: 200, body: JSON.stringify(result || { error: 'no schedule endpoint found' }),
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
+  }
+
+  if (type === 'bookings') {
+    const paths = ['classbooking','class_booking','classbookings','class_bookings','bookings','booking'];
+    let result = null;
+    for (const p of paths) {
+      try {
+        const r = await fetch(`${BASE}/portal_api/v1/${p}?api_key=${KEY}`);
+        if (r.ok) { const d = await r.json(); result = { path: p, status: r.status, count: Array.isArray(d?.result) ? d.result.length : JSON.stringify(d).length, sample: JSON.stringify(d).substring(0,400) }; break; }
+        else { if (!result) result = { path: p, status: r.status }; }
+      } catch(e) {}
+    }
+    return { statusCode: 200, body: JSON.stringify(result || { error: 'no bookings endpoint found' }),
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
+  }
+
+if (type === 'membership-counts') {
     const counts = await getMembershipCounts();
     const defaults = {'Gym Access 24/7':27,'Perf Base':11,'Perf Core':6,'Perf Plus':3,'Perf Prime':2,'Plus Online':4,'Community':1,'S&C Open Session':1};
     return { statusCode: 200, body: JSON.stringify(counts || defaults), headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
