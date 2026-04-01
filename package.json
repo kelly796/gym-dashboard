@@ -1,0 +1,8 @@
+{
+  "name": "gym-dashboard",
+  "version": "1.0.0",
+  "description": "Performotion gym membership dashboard",
+  "dependencies": {
+    "@netlify/blobs": "^7.3.0"
+  }
+}
