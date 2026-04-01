@@ -627,5 +627,26 @@ renderMembers = function(data) {
         .slice(0, 200)
   );
 };
+
+// ── Live Membership Counts (webhook-updated Netlify Blobs) ──
+async function loadMembershipCounts() {
+  try {
+    const res = await fetch('/.netlify/functions/gymmaster?type=membership-counts');
+    if (!res.ok) return;
+    const counts = await res.json();
+    const barMap = [['Gym Access 24/7','bar-t1'],['Perf Base','bar-t2'],['Perf Core','bar-t3'],['Perf Plus','bar-t4'],['Perf Prime','bar-t5'],['Plus Online','bar-t6'],['Community','bar-t7'],['S\u0026C Open Session','bar-t8']];
+    const total = Object.values(counts).reduce((s,n)=>s+(n||0),0)||1;
+    barMap.forEach(([key,id])=>{
+      const n=counts[key]||0;
+      const pct=Math.round(n/total*100);
+      const el=document.getElementById(id);
+      if(el){el.style.width=pct+'%';}
+      const row=el?el.closest('li,[class*="member"],.type-row')||el.parentElement?.parentElement:null;
+      if(row){const c=row.querySelector('.count,.num,[class*="count"]');if(c)c.textContent=n;}
+    });
+  } catch(e){}
+}
+
 loadLiveData();
+loadMembershipCounts();
 </script>
