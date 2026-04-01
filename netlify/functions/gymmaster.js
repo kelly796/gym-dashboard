@@ -6,51 +6,25 @@ exports.handler = async function(event) {
   try {
     let r, d;
 
-    if (type === 'explore') {
-      // Explore different API versions and endpoints for membership type data
-      const paths = [
-        '/portal/api/v2/members',
-        '/portal/api/v1/member_memberships',
-        '/portal/api/v1/active_members',
-        '/portal/api/v1/memberships/current',
-        '/portal/api/v1/reports/membership_summary',
-        '/portal/api/v1/reports',
-        '/portal/api/v1/kpi',
-        '/portal/api/v1/dashboard',
-        '/gatekeeper_api/v2/memberships',
-        '/gatekeeper_api/v2/members',
-        '/portal/api/v2/memberships/members',
-        '/portal/api/v1/members/memberships',
+    if (type === 'gatekeeper') {
+      // Try gatekeeper API with different auth methods
+      const tests = [
+        { url: BASE + '/gatekeeper_api/v2/members?key=' + KEY, label: 'key param' },
+        { url: BASE + '/gatekeeper_api/v2/members?api_key=' + KEY, label: 'api_key param' },
+        { url: BASE + '/gatekeeper_api/v2/members?token=' + KEY, label: 'token param' },
+        { url: BASE + '/gatekeeper_api/v2/members', label: 'Bearer header', headers: { 'Authorization': 'Bearer ' + KEY } },
+        { url: BASE + '/gatekeeper_api/v2/members', label: 'X-API-Key header', headers: { 'X-API-Key': KEY } },
+        { url: BASE + '/gatekeeper_api/v2/membertypes?api_key=' + KEY, label: 'membertypes' },
+        { url: BASE + '/gatekeeper_api/v2/membershiptypes?api_key=' + KEY, label: 'membershiptypes' },
+        { url: BASE + '/gatekeeper_api/v2/membership?api_key=' + KEY, label: 'membership' },
       ];
       const results = [];
-      for (const p of paths) {
+      for (const t of tests) {
         try {
-          const sep = p.includes('?') ? '&' : '?';
-          const resp = await fetch(BASE + p + sep + 'api_key=' + KEY);
+          const resp = await fetch(t.url, t.headers ? { headers: t.headers } : {});
           const txt = await resp.text();
-          results.push({ path: p, status: resp.status, snippet: txt.slice(0,100) });
-        } catch(e) { results.push({ path: p, error: e.message }); }
-      }
-      return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
-    }
-
-    if (type === 'v2explore') {
-      // Try v2 reporting API with different auth
-      const paths = [
-        '/portal/api/v2/members',
-        '/portal/api/v2/memberships',
-        '/portal/api/v2/reports/memberships',
-        '/portal/api/v2/kpi',
-        '/portal/reporting/api/members',
-        '/portal/reporting/api/memberships',
-      ];
-      const results = [];
-      for (const p of paths) {
-        try {
-          const resp = await fetch(BASE + p + '?api_key=' + KEY);
-          const txt = await resp.text();
-          results.push({ path: p, status: resp.status, snippet: txt.slice(0,120) });
-        } catch(e) { results.push({ path: p, error: e.message }); }
+          results.push({ label: t.label, status: resp.status, snippet: txt.slice(0, 120) });
+        } catch(e) { results.push({ label: t.label, error: e.message }); }
       }
       return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
     }
