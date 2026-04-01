@@ -5,18 +5,30 @@ exports.handler = async function(event) {
   const cors = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
   try {
     let r, d;
+
     if (type === 'debug') {
-      const url = BASE + '/members_api_key_' + (KEY || 'MISSING');
-      r = await fetch(url);
-      const raw = await r.text();
-      return { statusCode: 200, headers: cors, body: JSON.stringify({
-        keyPresent: KEY ? ('yes len=' + KEY.length) : 'MISSING',
-        httpStatus: r.status,
-        rawSlice: raw.slice(0, 500)
-      })};
+      // Test multiple URL formats to find what GymMaster accepts
+      const urls = [
+        BASE + '/members?api_key=' + KEY,
+        BASE + '/member?api_key=' + KEY,
+        BASE + '/clients?api_key=' + KEY,
+        BASE + '/client?api_key=' + KEY,
+        'https://performotion.gymmasteronline.com/portal/api/' + KEY + '/members',
+        'https://performotion.gymmasteronline.com/portal/api/members?api_key=' + KEY,
+      ];
+      const results = [];
+      for (const url of urls) {
+        try {
+          const resp = await fetch(url);
+          const txt = await resp.text();
+          results.push({ url: url.replace(KEY,'***'), status: resp.status, snippet: txt.slice(0,100) });
+        } catch(e) { results.push({ url: url.replace(KEY,'***'), error: e.message }); }
+      }
+      return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
     }
+
     if (type === 'members') {
-      r = await fetch(BASE + '/members_api_key_' + KEY);
+      r = await fetch(BASE + '/members?api_key=' + KEY);
       d = await r.json();
       const rows = d.result || d.data || d.members || d.member || [];
       const members = rows.map(m => {
@@ -37,10 +49,10 @@ exports.handler = async function(event) {
       });
       return { statusCode: 200, headers: cors, body: JSON.stringify({ members }) };
     }
-    if (type === 'memberships') { r = await fetch(BASE + '/memberships_api_key_' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
-    if (type === 'classes') { r = await fetch(BASE + '/booking/classes/schedule_api_key_' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
-    if (type === 'cancellations') { r = await fetch(BASE + '/memberships/cancel_api_key_' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
-    r = await fetch(BASE + '/version_api_key_' + KEY); d = await r.json();
+    if (type === 'memberships') { r = await fetch(BASE + '/memberships?api_key=' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
+    if (type === 'classes') { r = await fetch(BASE + '/booking/classes/schedule?api_key=' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
+    if (type === 'cancellations') { r = await fetch(BASE + '/memberships/cancel?api_key=' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
+    r = await fetch(BASE + '/version?api_key=' + KEY); d = await r.json();
     return { statusCode: 200, headers: cors, body: JSON.stringify(d) };
   } catch(err) {
     return { statusCode: 500, headers: cors, body: JSON.stringify({ error: err.message }) };
