@@ -786,14 +786,12 @@ function showMemberDetail(m) {
 }
 function closeMemberDetail() { document.getElementById('mem-detail').style.display = 'none'; }
 function sendPromo() {
-  const m = window._selectedMember;
+  var m = window._selectedMember;
   if (!m) return;
-  window.open('mailto:?subject=' + encodeURIComponent('A special offer from PerforMotion') + '&body=' + encodeURIComponent('Hi ' + m.firstname + ',
-
-We wanted to reach out with a special offer just for you.
-
-Kelly
-PerforMotion Rehab & Performance Centre'));
+  var nl = String.fromCharCode(10);
+  var sub = encodeURIComponent("A special offer from PerforMotion");
+  var body = encodeURIComponent("Hi " + m.firstname + "," + nl + nl + "We wanted to reach out with a special offer just for you." + nl + nl + "Kelly" + nl + "PerforMotion Rehab & Performance Centre");
+  window.open("mailto:?subject=" + sub + "&body=" + body);
 }
 function loadMembershipCounts() {
   try {
