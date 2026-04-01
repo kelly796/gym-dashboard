@@ -7,16 +7,32 @@ exports.handler = async function(event) {
     let r, d;
 
     if (type === 'rawdebug') {
-      // Return raw fields from GymMaster for the first active member
-      r = await fetch(BASE + '/members?api_key=' + KEY);
-      d = await r.json();
-      const rows = d.result || [];
-      const active = rows.find(m => (m.status||'').toLowerCase() === 'current') || rows[0];
-      return { statusCode: 200, headers: cors, body: JSON.stringify({
-        totalRows: rows.length,
-        rawFields: active ? Object.keys(active) : [],
-        sampleMember: active || null
-      })};
+      // Test multiple endpoints to find member-membership link
+      const tests = [
+        '/membermemberships',
+        '/member/memberships',
+        '/memberships/members',
+        '/members/memberships',
+        '/membership/active',
+        '/memberships/active',
+      ];
+      const results = [];
+      for (const path of tests) {
+        try {
+          const resp = await fetch(BASE + path + '?api_key=' + KEY);
+          const txt = await resp.text();
+          results.push({ path, status: resp.status, snippet: txt.slice(0,120) });
+        } catch(e) { results.push({ path, error: e.message }); }
+      }
+      return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
+    }
+
+    if (type === 'memberdebug') {
+      // Get full detail of a single active member by ID
+      const mid = (event.queryStringParameters || {}).id || '5029';
+      r = await fetch(BASE + '/members/' + mid + '?api_key=' + KEY);
+      const txt = await r.text();
+      return { statusCode: 200, headers: cors, body: JSON.stringify({ status: r.status, raw: txt.slice(0,2000) }) };
     }
 
     if (type === 'members') {
@@ -31,8 +47,7 @@ exports.handler = async function(event) {
           lastname: m.surname || m.lastname || m.last_name || '',
           status: ['expired','cancelled','inactive','recently expired'].includes(s) ? 'cancelled'
                 : ['on hold','hold','suspended'].includes(s) ? 'hold' : 'active',
-          membership_name: m.membershiptypename || m.membershiptype || m.membership_name
-                        || m.membershipName || m.plan || m.planname || m.plan_name || '',
+          membership_name: m.membershiptypename || m.membershiptype || m.membership_name || m.membershipName || m.plan || '',
           join_date: m.joindate || m.join_date || null,
           cancel_date: m.leavedate || m.canceldate || m.cancel_date || null,
           last_visit: m.lastvisit || m.last_visit || null,
