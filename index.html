@@ -112,7 +112,9 @@
     .sample-notice { text-align: center; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 2rem 0 0.5rem; border-top: 1px solid var(--border); margin-top: 2rem; }
 
     @media(max-width:900px){ .grid2{ grid-template-columns:1fr; } .page{ padding:1rem; } }
-  </style>
+      .mem-filter-btn { background:#1a1a1a; border:1px solid #2a2a2a; color:#888; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; transition:all 0.2s; }
+    .mem-filter-btn.active { background:#c62828; border-color:#c62828; color:#fff; }
+</style>
 </head>
 <body>
 
@@ -194,21 +196,58 @@
 
 <!-- MEMBERS -->
 <div class="page" id="page-members">
-  <div class="section-label">Member search & profiles</div>
+  <div class="section-label">Members — search &amp; profiles</div>
   <div class="metrics">
-    <div class="metric"><div class="metric-label">Total active</div><div class="metric-value">847</div></div>
-    <div class="metric warn"><div class="metric-label">On hold</div><div class="metric-value">23</div></div>
-    <div class="metric danger"><div class="metric-label">At risk (14+ days)</div><div class="metric-value">11</div></div>
-    <div class="metric info"><div class="metric-label">New this month</div><div class="metric-value">34</div></div>
+    <div class="metric-card"><div class="metric-label">Total active</div><div class="metric-value" id="mem-active">—</div></div>
+    <div class="metric-card"><div class="metric-label">On hold</div><div class="metric-value" id="mem-hold">—</div></div>
+    <div class="metric-card"><div class="metric-label">At risk (14+ days)</div><div class="metric-value" id="mem-atrisk">—</div></div>
+    <div class="metric-card"><div class="metric-label">New this month</div><div class="metric-value" id="mem-new">—</div></div>
   </div>
   <div class="card">
-    <div class="search-bar"><input class="search-input" type="text" placeholder="Search by name, membership type or status..." oninput="filterMembers(this.value)" /></div>
-    <table class="data-table" id="memberTable">
-      <thead><tr><th>Name</th><th>Membership type</th><th>Status</th><th>Joined</th><th>Last visit</th><th>Total visits</th></tr></thead>
-      <tbody id="memberBody"></tbody>
-    </table>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <input id="mem-search" type="text" placeholder="Search by name..." oninput="filterMembers()" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid #2a2a2a;background:#111;color:#e0e0e0;border-radius:6px;font-size:14px">
+      <div style="display:flex;gap:6px">
+        <button class="mem-filter-btn active" onclick="setMemFilter('active',this)">Active</button>
+        <button class="mem-filter-btn" onclick="setMemFilter('hold',this)">Hold</button>
+        <button class="mem-filter-btn" onclick="setMemFilter('all',this)">All</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="memberTable" style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="text-align:left;padding:8px 10px;color:#888;font-size:12px;border-bottom:1px solid #1e1e1e">Name</th>
+          <th style="text-align:left;padding:8px 10px;color:#888;font-size:12px;border-bottom:1px solid #1e1e1e">Membership</th>
+          <th style="text-align:left;padding:8px 10px;color:#888;font-size:12px;border-bottom:1px solid #1e1e1e">Status</th>
+          <th style="text-align:left;padding:8px 10px;color:#888;font-size:12px;border-bottom:1px solid #1e1e1e">Joined</th>
+          <th style="text-align:left;padding:8px 10px;color:#888;font-size:12px;border-bottom:1px solid #1e1e1e">Last visit</th>
+          <th style="text-align:left;padding:8px 10px;color:#888;font-size:12px;border-bottom:1px solid #1e1e1e">Visits</th>
+          <th style="text-align:left;padding:8px 10px;color:#888;font-size:12px;border-bottom:1px solid #1e1e1e">Risk</th>
+        </tr></thead>
+        <tbody id="memberBody"></tbody>
+      </table>
+    </div>
+    <div id="mem-count" style="margin-top:10px;font-size:12px;color:#555"></div>
   </div>
-  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+  <div id="mem-detail" style="display:none" class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div id="mem-det-name" style="font-size:18px;font-weight:600;color:#e0e0e0"></div>
+      <button onclick="closeMemberDetail()" style="background:none;border:1px solid #2a2a2a;color:#888;padding:4px 10px;border-radius:4px;cursor:pointer">Close</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+      <div class="metric-card"><div class="metric-label">Status</div><div id="mem-det-status" class="metric-value" style="font-size:16px"></div></div>
+      <div class="metric-card"><div class="metric-label">Membership type</div><div id="mem-det-type" class="metric-value" style="font-size:16px"></div></div>
+      <div class="metric-card"><div class="metric-label">Joined</div><div id="mem-det-joined" class="metric-value" style="font-size:16px"></div></div>
+      <div class="metric-card"><div class="metric-label">Tenure</div><div id="mem-det-tenure" class="metric-value" style="font-size:16px"></div></div>
+      <div class="metric-card"><div class="metric-label">Total visits</div><div id="mem-det-visits" class="metric-value" style="font-size:16px"></div></div>
+      <div class="metric-card"><div class="metric-label">Last visit</div><div id="mem-det-lastvisit" class="metric-value" style="font-size:16px"></div></div>
+      <div class="metric-card"><div class="metric-label">Est. lifetime value</div><div id="mem-det-ltv" class="metric-value" style="font-size:16px"></div></div>
+      <div class="metric-card"><div class="metric-label">Cancellation risk</div><div id="mem-det-risk" class="metric-value" style="font-size:16px"></div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button onclick="sendPromo()" style="background:#c62828;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Send promo email</button>
+      <div id="mem-det-ltv-note" style="font-size:11px;color:#555"></div>
+    </div>
+  </div>
 </div>
 
 <!-- CLASSES -->
@@ -342,7 +381,8 @@ function showPage(name, tab) {
   document.getElementById('page-' + name).classList.add('active');
   tab.classList.add('active');
 
-  if (page === 'classes') renderClasses();}
+  if (page === 'classes') renderClasses();
+    if (page === 'members') loadMembersTab();}
 
 // MEMBERS
 const members = [
@@ -668,7 +708,94 @@ function renderClasses(){
   if($('cls-popular')&&pop)$('cls-popular').textContent=pop[0];
 }
 
-async function loadMembershipCounts() {
+async // ---- MEMBERS TAB ----
+let _allMembersCache = null;
+let _memFilter = 'active';
+function loadMembersTab() {
+  if (_allMembersCache) { renderMemberTable(_allMembersCache); return; }
+  document.getElementById('memberBody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#555">Loading…</td></tr>';
+  fetch('/.netlify/functions/gymmaster?type=members')
+    .then(r => r.json())
+    .then(data => { _allMembersCache = data.members; updateMemberMetrics(data.members); renderMemberTable(data.members); })
+    .catch(() => { document.getElementById('memberBody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#c62828">Failed to load</td></tr>'; });
+}
+function updateMemberMetrics(members) {
+  const now = new Date();
+  const active = members.filter(m => m.status === 'active');
+  const hold = members.filter(m => m.status === 'hold');
+  const monthAgo = new Date(now - 30*24*60*60*1000);
+  const atRisk = active.filter(m => !m.last_visit || (now - new Date(m.last_visit)) > 14*24*60*60*1000);
+  const newThis = active.filter(m => m.join_date && new Date(m.join_date) >= monthAgo);
+  document.getElementById('mem-active').textContent = active.length;
+  document.getElementById('mem-hold').textContent = hold.length;
+  document.getElementById('mem-atrisk').textContent = atRisk.length;
+  document.getElementById('mem-new').textContent = newThis.length;
+}
+function renderMemberTable(members) {
+  const query = (document.getElementById('mem-search')?.value || '').toLowerCase();
+  let filtered = members;
+  if (_memFilter === 'active') filtered = filtered.filter(m => m.status === 'active');
+  else if (_memFilter === 'hold') filtered = filtered.filter(m => m.status === 'hold');
+  if (query) filtered = filtered.filter(m => (m.firstname + ' ' + m.lastname).toLowerCase().includes(query));
+  const tbody = document.getElementById('memberBody');
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#555">No members found</td></tr>'; document.getElementById('mem-count').textContent = ''; return; }
+  const now = new Date();
+  tbody.innerHTML = filtered.slice(0, 100).map(m => {
+    const risk = getMemberRisk(m, now);
+    const rc = risk === 'HIGH' ? '#c62828' : risk === 'MED' ? '#e65100' : '#2e7d32';
+    const sc = m.status === 'active' ? '#2e7d32' : '#e65100';
+    const lv = m.last_visit ? m.last_visit.substring(0, 10) : '—';
+    const mt = m.membership_name || '—';
+    const mj = JSON.stringify(m).replace(/"/g, '&quot;');
+    return '<tr onclick="showMemberDetail(' + mj + ')" style="cursor:pointer;border-bottom:1px solid #1a1a1a"><td style="padding:9px 10px;font-size:13px;color:#e0e0e0">' + m.firstname + ' ' + m.lastname + '</td><td style="padding:9px 10px;font-size:12px;color:#aaa">' + mt + '</td><td style="padding:9px 10px"><span style="font-size:11px;padding:2px 7px;border-radius:4px;background:' + sc + '22;color:' + sc + '">' + m.status + '</span></td><td style="padding:9px 10px;font-size:12px;color:#888">' + (m.join_date ? m.join_date.substring(0, 10) : '—') + '</td><td style="padding:9px 10px;font-size:12px;color:#888">' + lv + '</td><td style="padding:9px 10px;font-size:12px;color:#aaa">' + (m.visit_count || 0) + '</td><td style="padding:9px 10px"><span style="font-size:11px;padding:2px 7px;border-radius:4px;background:' + rc + '22;color:' + rc + '">' + risk + '</span></td></tr>';
+  }).join('');
+  document.getElementById('mem-count').textContent = 'Showing ' + Math.min(filtered.length, 100) + ' of ' + filtered.length + ' members';
+}
+function getMemberRisk(m, now) {
+  if (!m.last_visit) return 'HIGH';
+  const days = (now - new Date(m.last_visit)) / (1000 * 60 * 60 * 24);
+  return days > 30 ? 'HIGH' : days > 14 ? 'MED' : 'LOW';
+}
+function filterMembers() { if (_allMembersCache) renderMemberTable(_allMembersCache); }
+function setMemFilter(f, btn) {
+  _memFilter = f;
+  document.querySelectorAll('.mem-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (_allMembersCache) renderMemberTable(_allMembersCache);
+}
+function showMemberDetail(m) {
+  const now = new Date();
+  const risk = getMemberRisk(m, now);
+  const rc = risk === 'HIGH' ? '#c62828' : risk === 'MED' ? '#e65100' : '#2e7d32';
+  const jd = m.join_date ? new Date(m.join_date) : null;
+  const months = jd ? Math.floor((now - jd) / (1000 * 60 * 60 * 24 * 30)) : 0;
+  document.getElementById('mem-det-name').textContent = m.firstname + ' ' + m.lastname;
+  document.getElementById('mem-det-status').textContent = m.status;
+  document.getElementById('mem-det-type').textContent = m.membership_name || '—';
+  document.getElementById('mem-det-joined').textContent = m.join_date ? m.join_date.substring(0, 10) : '—';
+  document.getElementById('mem-det-tenure').textContent = months + ' months';
+  document.getElementById('mem-det-visits').textContent = m.visit_count || 0;
+  document.getElementById('mem-det-lastvisit').textContent = m.last_visit ? m.last_visit.substring(0, 10) : 'Never';
+  document.getElementById('mem-det-ltv').textContent = '$' + (months * 60).toLocaleString();
+  document.getElementById('mem-det-risk').innerHTML = '<span style="color:' + rc + '">' + risk + '</span>';
+  document.getElementById('mem-det-ltv-note').textContent = 'Est. ' + months + ' months × $60/mo avg';
+  window._selectedMember = m;
+  const det = document.getElementById('mem-detail');
+  det.style.display = 'block';
+  setTimeout(() => det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+function closeMemberDetail() { document.getElementById('mem-detail').style.display = 'none'; }
+function sendPromo() {
+  const m = window._selectedMember;
+  if (!m) return;
+  window.open('mailto:?subject=' + encodeURIComponent('A special offer from PerforMotion') + '&body=' + encodeURIComponent('Hi ' + m.firstname + ',
+
+We wanted to reach out with a special offer just for you.
+
+Kelly
+PerforMotion Rehab & Performance Centre'));
+}
+function loadMembershipCounts() {
   try {
     const res = await fetch('/.netlify/functions/gymmaster?type=membership-counts');
     if (!res.ok) return;
