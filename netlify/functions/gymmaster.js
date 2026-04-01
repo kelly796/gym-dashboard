@@ -96,6 +96,41 @@ exports.handler = async function(event) {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
   }
 
+  if (type === 'explore2') {
+    // Test v2 API and member sub-paths
+    const results = {};
+    // Try v2 portal API
+    const v2paths = ['members','classes','schedule','bookings','payments','visits'];
+    await Promise.all(v2paths.map(async p => {
+      try {
+        const r = await fetch(`${BASE}/portal_api/v2/${p}?api_key=${KEY}`);
+        results['v2_'+p] = r.status;
+      } catch(e) { results['v2_'+p] = 'err'; }
+    }));
+    // Get first member ID to test sub-paths
+    try {
+      const mr = await fetch(`${BASE}/portal_api/v1/members?api_key=${KEY}&limit=1`);
+      const md = await mr.json();
+      const memberId = md?.result?.[0]?.id || md?.result?.[0]?.memberid || md?.result?.[0]?.member_id;
+      if (memberId) {
+        const subpaths = ['bookings','visits','payments','classes','membership','memberships','attendance'];
+        await Promise.all(subpaths.map(async p => {
+          try {
+            const r = await fetch(`${BASE}/portal_api/v1/members/${memberId}/${p}?api_key=${KEY}`);
+            results['member_'+p] = r.status;
+          } catch(e) { results['member_'+p] = 'err'; }
+        }));
+        results['memberId'] = memberId;
+        // Also test full member detail
+        const rd = await fetch(`${BASE}/portal_api/v1/members/${memberId}?api_key=${KEY}`);
+        results['member_detail'] = rd.status;
+        if (rd.ok) { const dd = await rd.json(); results['member_detail_fields'] = Object.keys(dd?.result || dd || {}).slice(0,20); }
+      }
+    } catch(e) { results['member_err'] = e.message; }
+    return { statusCode: 200, body: JSON.stringify(results),
+      headers: {'Content-Type':'application/json','Access-Control-Allow-Origin':'*'} };
+  }
+
 if (type === 'membership-counts') {
     const counts = await getMembershipCounts();
     const defaults = {'Gym Access 24/7':27,'Perf Base':11,'Perf Core':6,'Perf Plus':3,'Perf Prime':2,'Plus Online':4,'Community':1,'S&C Open Session':1};
