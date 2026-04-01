@@ -7,32 +7,27 @@ exports.handler = async function(event) {
     let r, d;
 
     if (type === 'rawdebug') {
-      // Test multiple endpoints to find member-membership link
+      // Test membership/{id}/members and other patterns
+      // Known membership IDs from /memberships: 13159=Perf Base, 13014=Gym Access 24/7, 13160=Perf Base Plus
       const tests = [
-        '/membermemberships',
-        '/member/memberships',
-        '/memberships/members',
-        '/members/memberships',
-        '/membership/active',
-        '/memberships/active',
+        '/memberships/13159/members',
+        '/memberships/13014/members',
+        '/memberships/13159/member',
+        '/reports',
+        '/statistics',
+        '/members?status=current',
+        '/members?membershiptype=13159',
       ];
       const results = [];
       for (const path of tests) {
         try {
-          const resp = await fetch(BASE + path + '?api_key=' + KEY);
+          const sep = path.includes('?') ? '&' : '?';
+          const resp = await fetch(BASE + path + sep + 'api_key=' + KEY);
           const txt = await resp.text();
-          results.push({ path, status: resp.status, snippet: txt.slice(0,120) });
+          results.push({ path, status: resp.status, snippet: txt.slice(0,150) });
         } catch(e) { results.push({ path, error: e.message }); }
       }
       return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
-    }
-
-    if (type === 'memberdebug') {
-      // Get full detail of a single active member by ID
-      const mid = (event.queryStringParameters || {}).id || '5029';
-      r = await fetch(BASE + '/members/' + mid + '?api_key=' + KEY);
-      const txt = await r.text();
-      return { statusCode: 200, headers: cors, body: JSON.stringify({ status: r.status, raw: txt.slice(0,2000) }) };
     }
 
     if (type === 'members') {
@@ -56,6 +51,24 @@ exports.handler = async function(event) {
       });
       return { statusCode: 200, headers: cors, body: JSON.stringify({ members }) };
     }
+
+    // New: fetch members for a specific membership type ID and count them
+    if (type === 'membershipcount') {
+      // Fetch all memberships, then for each get members count
+      r = await fetch(BASE + '/memberships?api_key=' + KEY);
+      d = await r.json();
+      const types = (d.result || []).filter(t => t.companyids && t.companyids.includes(2));
+      const results = [];
+      for (const t of types.slice(0,5)) { // test first 5
+        try {
+          const resp = await fetch(BASE + '/memberships/' + t.id + '/members?api_key=' + KEY);
+          const txt = await resp.text();
+          results.push({ id: t.id, name: t.name, status: resp.status, snippet: txt.slice(0,100) });
+        } catch(e) { results.push({ id: t.id, name: t.name, error: e.message }); }
+      }
+      return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
+    }
+
     if (type === 'memberships') { r = await fetch(BASE + '/memberships?api_key=' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
     if (type === 'classes') { r = await fetch(BASE + '/booking/classes/schedule?api_key=' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
     if (type === 'cancellations') { r = await fetch(BASE + '/memberships/cancel?api_key=' + KEY); d = await r.json(); return { statusCode: 200, headers: cors, body: JSON.stringify(d) }; }
