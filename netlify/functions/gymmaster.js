@@ -1,8 +1,25 @@
+
+// Read membership counts from Netlify Blobs (updated by webhook)
+async function getMembershipCounts() {
+  try {
+    const { getStore } = require('@netlify/blobs');
+    const store = getStore('gymmaster-data');
+    const counts = await store.get('membership-counts', { type: 'json' });
+    return counts;
+  } catch(e) { return null; }
+}
+
 exports.handler = async function(event) {
   const KEY = process.env.GYMMASTER_API_KEY;
   const BASE = 'https://performotion.gymmasteronline.com';
   const type = (event.queryStringParameters || {}).type;
-  const cors = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
+  if (type === 'membership-counts') {
+    const counts = await getMembershipCounts();
+    const defaults = {'Gym Access 24/7':27,'Perf Base':11,'Perf Core':6,'Perf Plus':3,'Perf Prime':2,'Plus Online':4,'Community':1,'S&C Open Session':1};
+    return { statusCode: 200, body: JSON.stringify(counts || defaults), headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
+  }
+
+    const cors = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
   try {
     let r, d;
 
