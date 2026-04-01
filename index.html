@@ -212,53 +212,46 @@
 </div>
 
 <!-- CLASSES -->
-<div class="page" id="page-classes">
-  <div class="section-label">Class bookings & attendance</div>
-  <div class="metrics">
-    <div class="metric"><div class="metric-label">Classes this week</div><div class="metric-value">42</div></div>
-    <div class="metric info"><div class="metric-label">Total bookings</div><div class="metric-value">1,204</div></div>
-    <div class="metric warn"><div class="metric-label">No-shows this week</div><div class="metric-value">38</div></div>
-    <div class="metric danger"><div class="metric-label">Late cancellations</div><div class="metric-value">17</div></div>
+<div class="page" id="page-classes" style="display:none">
+  <div class="section-label">CLASSES — WEEKLY OVERVIEW</div>
+  <div class="metrics-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+    <div class="metric-card"><div class="metric-label">Classes this week</div><div class="metric-value" id="cls-count">27</div><div class="metric-sub">Scheduled</div></div>
+    <div class="metric-card"><div class="metric-label">Total bookings</div><div class="metric-value" id="cls-bookings">—</div><div class="metric-sub">Update via GymMaster</div></div>
+    <div class="metric-card"><div class="metric-label">Avg fill rate</div><div class="metric-value" id="cls-fill">—</div><div class="metric-sub">Across all classes</div></div>
+    <div class="metric-card"><div class="metric-label">Most popular</div><div class="metric-value" style="font-size:1rem;line-height:1.3" id="cls-popular">Perform S&amp;C</div><div class="metric-sub">By booking volume</div></div>
   </div>
-  <div class="grid2">
-    <div class="card">
-      <div class="card-title">Today's classes — capacity</div>
-      <div class="card-sub">Spots filled vs total available</div>
-      <div class="class-row"><div class="class-info"><div class="class-name">6am Strength & Conditioning</div><div class="class-time">06:00 — 07:00</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:95%;background:#c0392b"></div></div><div class="class-cap-text" style="color:#c0392b">19/20</div></div>
-      <div class="class-row"><div class="class-info"><div class="class-name">9am Perf Core Training</div><div class="class-time">09:00 — 10:00</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:75%;background:#d4820a"></div></div><div class="class-cap-text" style="color:#d4820a">15/20</div></div>
-      <div class="class-row"><div class="class-info"><div class="class-name">11am Recovery & Mobility</div><div class="class-time">11:00 — 12:00</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:50%;background:#1a7a4a"></div></div><div class="class-cap-text" style="color:#1a7a4a">8/16</div></div>
-      <div class="class-row"><div class="class-info"><div class="class-name">5:30pm Perf Plus HIIT</div><div class="class-time">17:30 — 18:30</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:100%;background:#c0392b"></div></div><div class="class-cap-text" style="color:#c0392b">20/20</div></div>
-      <div class="class-row"><div class="class-info"><div class="class-name">6:30pm Community Circuit</div><div class="class-time">18:30 — 19:30</div></div><div class="class-cap-bg"><div class="class-cap-fill" style="width:60%;background:#1a7a4a"></div></div><div class="class-cap-text" style="color:#1a7a4a">12/20</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Most popular classes</div>
-      <div class="card-sub">By bookings this month</div>
-      <div class="bar-row"><span class="bar-label">5:30pm Perf Plus HIIT</span><div class="bar-bg"><div class="bar-fill" style="width:95%;background:#2a52a0"></div></div><span class="bar-val">312</span></div>
-      <div class="bar-row"><span class="bar-label">6am S&C</span><div class="bar-bg"><div class="bar-fill" style="width:82%;background:#2a52a0"></div></div><span class="bar-val">268</span></div>
-      <div class="bar-row"><span class="bar-label">9am Perf Core</span><div class="bar-bg"><div class="bar-fill" style="width:70%;background:#2a52a0"></div></div><span class="bar-val">229</span></div>
-      <div class="bar-row"><span class="bar-label">Community Circuit</span><div class="bar-bg"><div class="bar-fill" style="width:55%;background:#2a52a0"></div></div><span class="bar-val">181</span></div>
-      <div class="bar-row"><span class="bar-label">Recovery & Mobility</span><div class="bar-bg"><div class="bar-fill" style="width:38%;background:#2a52a0"></div></div><span class="bar-val">124</span></div>
-    </div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px">
+    <div style="padding:16px 20px;border-bottom:1px solid #eef0f3;font-weight:600;font-size:.8rem;letter-spacing:.06em;color:#6b7280">MORNING CLASSES — AM</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:700px">
+      <thead><tr style="background:#f8f9fa">
+        <th style="padding:10px 14px;text-align:left;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3;width:70px">TIME</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">MON</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">TUE</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">WED</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">THU</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">FRI</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">SAT</th>
+      </tr></thead>
+      <tbody id="cls-am-body"></tbody>
+    </table></div>
   </div>
-  <div class="grid2">
-    <div class="card">
-      <div class="card-title">Bookings vs no-shows</div>
-      <div class="card-sub">Last 8 weeks</div>
-      <div style="position:relative;height:200px;"><canvas id="c-bookings"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Least attended classes</div>
-      <div class="card-sub">Average fill rate this month</div>
-      <div class="bar-row"><span class="bar-label">Wed 2pm Stretch</span><div class="bar-bg"><div class="bar-fill" style="width:22%;background:#c0392b"></div></div><span class="bar-val" style="color:#c0392b">22%</span></div>
-      <div class="bar-row"><span class="bar-label">Tue 7am Recovery</span><div class="bar-bg"><div class="bar-fill" style="width:31%;background:#d4820a"></div></div><span class="bar-val" style="color:#d4820a">31%</span></div>
-      <div class="bar-row"><span class="bar-label">Thu 1pm Core</span><div class="bar-bg"><div class="bar-fill" style="width:38%;background:#d4820a"></div></div><span class="bar-val" style="color:#d4820a">38%</span></div>
-      <div class="bar-row"><span class="bar-label">Sat 8am Community</span><div class="bar-bg"><div class="bar-fill" style="width:42%;background:#d4820a"></div></div><span class="bar-val" style="color:#d4820a">42%</span></div>
-      <div class="bar-row"><span class="bar-label">Sun 9am S&C</span><div class="bar-bg"><div class="bar-fill" style="width:45%;background:#1a7a4a"></div></div><span class="bar-val" style="color:#1a7a4a">45%</span></div>
-    </div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px">
+    <div style="padding:16px 20px;border-bottom:1px solid #eef0f3;font-weight:600;font-size:.8rem;letter-spacing:.06em;color:#6b7280">AFTERNOON &amp; EVENING CLASSES — PM</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:700px">
+      <thead><tr style="background:#f8f9fa">
+        <th style="padding:10px 14px;text-align:left;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3;width:70px">TIME</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">MON</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">TUE</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">WED</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">THU</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">FRI</th>
+        <th style="padding:10px 14px;text-align:center;font-size:.75rem;color:#6b7280;font-weight:600;border-bottom:1px solid #eef0f3">SAT</th>
+      </tr></thead>
+      <tbody id="cls-pm-body"></tbody>
+    </table></div>
   </div>
-  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+  <div style="font-size:.75rem;color:#9ca3af;text-align:center;padding:8px 0 16px">Bookings update automatically once GymMaster API access is enabled &nbsp;·&nbsp; Capacity defaults to 12 per class</div>
 </div>
-
 <!-- REVENUE -->
 <div class="page" id="page-revenue">
   <div class="section-label">Revenue & payments</div>
@@ -348,7 +341,8 @@ function showPage(name, tab) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   tab.classList.add('active');
-}
+
+  if (page === 'classes') renderClasses();}
 
 // MEMBERS
 const members = [
@@ -629,6 +623,51 @@ renderMembers = function(data) {
 };
 
 // ── Live Membership Counts (webhook-updated Netlify Blobs) ──
+
+// ── CLASS SCHEDULE ─────────────────────────────────────────────
+const CLASS_COLORS={'Perform Strong':'#1e40af','Perform S&C':'#065f46','Restore & Perform':'#7c3aed','Master the Movement':'#b45309','Stronger for Longer':'#be185d','Beat It':'#dc2626','Core Collective':'#0369a1','Boxing':'#374151'};
+const TIMETABLE={
+  am:[
+    {time:'05:15',Mon:{n:'Perform Strong (Lower)',b:0,c:12},Tue:{n:'Perform Strong (Upper)',b:0,c:12},Wed:{n:'Restore & Perform',b:0,c:12},Thu:{n:'Perform Strong (Lower)',b:0,c:12},Fri:{n:'Perform Strong (Lower)',b:0,c:12},Sat:null},
+    {time:'06:15',Mon:{n:'Perform S&C',b:0,c:12},Tue:{n:'Master the Movement',b:0,c:12},Wed:{n:'Stronger for Longer',b:0,c:12},Thu:{n:'Perform S&C',b:0,c:12},Fri:{n:'Perform Strong (Upper)',b:0,c:12},Sat:{n:'Perform S&C',b:0,c:12}},
+    {time:'07:00',Mon:null,Tue:null,Wed:null,Thu:null,Fri:null,Sat:{n:'Boxing',b:0,c:10}},
+    {time:'09:00',Mon:null,Tue:null,Wed:null,Thu:{n:'Stronger for Longer',b:0,c:12},Fri:null,Sat:null},
+    {time:'10:00',Mon:{n:'Stronger for Longer',b:0,c:12},Tue:null,Wed:null,Thu:null,Fri:null,Sat:null},
+    {time:'11:00',Mon:null,Tue:{n:'Beat It',b:0,c:15},Wed:null,Thu:{n:'Beat It',b:0,c:15},Fri:null,Sat:null}
+  ],
+  pm:[
+    {time:'12:00',Mon:null,Tue:{n:'Core Collective',b:0,c:12},Wed:null,Thu:null,Fri:null,Sat:{n:'Core Collective',b:0,c:12}},
+    {time:'17:00',Mon:{n:'Perform S&C',b:0,c:12},Tue:{n:'Perform S&C',b:0,c:12},Wed:{n:'Restore & Perform',b:0,c:12},Thu:{n:'Perform S&C',b:0,c:12},Fri:null,Sat:null},
+    {time:'18:00',Mon:{n:'Perform Strong (Lower)',b:0,c:12},Tue:{n:'Perform Strong (Upper)',b:0,c:12},Wed:{n:'Master the Movement',b:0,c:12},Thu:{n:'Perform Strong (Lower)',b:0,c:12},Fri:null,Sat:null}
+  ]
+};
+function getClassColor(n){for(const[k,c] of Object.entries(CLASS_COLORS)){const p=k.split(' ');if(n&&p.every(w=>n.includes(w)))return c;}return '#374151';}
+function makeCell(s){
+  if(!s)return '<td style="padding:8px;border-bottom:1px solid #f0f1f3"></td>';
+  const pct=s.c>0?Math.round(s.b/s.c*100):0;
+  const fc=pct>=90?'#dc2626':pct>=70?'#d97706':'#16a34a';
+  const col=getClassColor(s.n);
+  const sh=s.n.replace('Perform Strong','Perf Strong').replace('Stronger for Longer','Stronger 4 Lngr').replace('Master the Movement','Master Mvmt').replace('Core Collective','Core Coll').replace('Restore & Perform','Restore & Perf').replace('Perform S&C','Perf S&C');
+  return `<td style="padding:8px;border-bottom:1px solid #f0f1f3;vertical-align:top"><div style="background:${col}18;border-left:3px solid ${col};padding:6px 8px;border-radius:4px;min-width:88px"><div style="font-size:.7rem;font-weight:600;color:${col};line-height:1.3;margin-bottom:4px">${sh}</div><div style="font-size:.67rem;color:#6b7280;margin-bottom:3px">${s.b}/${s.c}</div><div style="height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${fc};border-radius:2px"></div></div></div></td>`;
+}
+function renderClasses(){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat'];
+  ['am','pm'].forEach(p=>{
+    const tb=document.getElementById('cls-'+p+'-body');
+    if(!tb)return;
+    tb.innerHTML=TIMETABLE[p].map(row=>'<tr><td style="padding:8px 14px;font-size:.75rem;font-weight:600;color:#374151;border-bottom:1px solid #f0f1f3;white-space:nowrap">'+row.time+'</td>'+days.map(d=>makeCell(row[d])).join('')+'</tr>').join('');
+  });
+  let tc=0,tb2=0,tcp=0;const cc={};
+  [...TIMETABLE.am,...TIMETABLE.pm].forEach(row=>['Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{if(row[d]){tc++;tb2+=row[d].b||0;tcp+=row[d].c||12;const k=row[d].n.split('(')[0].trim();cc[k]=(cc[k]||0)+(row[d].b||0);}}));
+  const fr=tcp>0?Math.round(tb2/tcp*100):0;
+  const pop=Object.entries(cc).sort((a,b)=>b[1]-a[1])[0];
+  const $=id=>document.getElementById(id);
+  if($('cls-count'))$('cls-count').textContent=tc;
+  if($('cls-bookings'))$('cls-bookings').textContent=tb2>0?tb2:'—';
+  if($('cls-fill'))$('cls-fill').textContent=tb2>0?fr+'%':'—';
+  if($('cls-popular')&&pop)$('cls-popular').textContent=pop[0];
+}
+
 async function loadMembershipCounts() {
   try {
     const res = await fetch('/.netlify/functions/gymmaster?type=membership-counts');
@@ -649,4 +688,5 @@ async function loadMembershipCounts() {
 
 loadLiveData();
 loadMembershipCounts();
+renderClasses();
 </script>
