@@ -6,25 +6,48 @@ exports.handler = async function(event) {
   try {
     let r, d;
 
-    if (type === 'gatekeeper') {
-      // Try gatekeeper API with different auth methods
+    if (type === 'portal_explore') {
+      // Try portal API with additional params and different endpoints
       const tests = [
-        { url: BASE + '/gatekeeper_api/v2/members?key=' + KEY, label: 'key param' },
-        { url: BASE + '/gatekeeper_api/v2/members?api_key=' + KEY, label: 'api_key param' },
-        { url: BASE + '/gatekeeper_api/v2/members?token=' + KEY, label: 'token param' },
-        { url: BASE + '/gatekeeper_api/v2/members', label: 'Bearer header', headers: { 'Authorization': 'Bearer ' + KEY } },
-        { url: BASE + '/gatekeeper_api/v2/members', label: 'X-API-Key header', headers: { 'X-API-Key': KEY } },
-        { url: BASE + '/gatekeeper_api/v2/membertypes?api_key=' + KEY, label: 'membertypes' },
-        { url: BASE + '/gatekeeper_api/v2/membershiptypes?api_key=' + KEY, label: 'membershiptypes' },
-        { url: BASE + '/gatekeeper_api/v2/membership?api_key=' + KEY, label: 'membership' },
+        BASE + '/portal/api/v1/members?api_key=' + KEY + '&include_membership=1',
+        BASE + '/portal/api/v1/members?api_key=' + KEY + '&detailed=1',
+        BASE + '/portal/api/v1/members?api_key=' + KEY + '&membership=1',
+        BASE + '/portal/api/v1/subscriptions?api_key=' + KEY,
+        BASE + '/portal/api/v1/billing?api_key=' + KEY,
+        BASE + '/portal/api/v1/member_plans?api_key=' + KEY,
+        BASE + '/portal/api/v1/plans?api_key=' + KEY,
+        BASE + '/portal/api/v1/charges?api_key=' + KEY,
+        BASE + '/portal/api/v1/member_types?api_key=' + KEY,
+      ];
+      const results = [];
+      for (const url of tests) {
+        try {
+          const resp = await fetch(url);
+          const txt = await resp.text();
+          const label = url.split('/portal/api/v1/')[1].split('?')[0];
+          results.push({ endpoint: label, status: resp.status, snippet: txt.slice(0, 120) });
+        } catch(e) { results.push({ endpoint: url, error: e.message }); }
+      }
+      return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
+    }
+
+    if (type === 'gatekeeper_key') {
+      // Try Gatekeeper API with Basic auth using api key as password
+      const GKBASE = BASE + '/gatekeeper_api/v2';
+      const basicAuth = Buffer.from('api:' + KEY).toString('base64');
+      const tests = [
+        { url: GKBASE + '/members', headers: { 'Authorization': 'Basic ' + basicAuth } },
+        { url: GKBASE + '/memberships', headers: { 'Authorization': 'Basic ' + basicAuth } },
+        { url: GKBASE + '/membertypes?key=' + KEY },
+        { url: GKBASE + '/membershiptypes?key=' + KEY },
       ];
       const results = [];
       for (const t of tests) {
         try {
           const resp = await fetch(t.url, t.headers ? { headers: t.headers } : {});
           const txt = await resp.text();
-          results.push({ label: t.label, status: resp.status, snippet: txt.slice(0, 120) });
-        } catch(e) { results.push({ label: t.label, error: e.message }); }
+          results.push({ url: t.url.replace(KEY,'***').replace(BASE,''), status: resp.status, snippet: txt.slice(0,150) });
+        } catch(e) { results.push({ url: t.url.replace(KEY,'***').replace(BASE,''), error: e.message }); }
       }
       return { statusCode: 200, headers: cors, body: JSON.stringify({ results }) };
     }
