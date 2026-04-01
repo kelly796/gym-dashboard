@@ -65,6 +65,37 @@ exports.handler = async function(event) {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
   }
 
+  if (type === 'explore') {
+    // Probe all possible GymMaster endpoints
+    const candidates = [
+      'classtimetable','class_timetable','timetable','timetables',
+      'classschedule','class_schedule','classsessions','class_sessions',
+      'classenrolments','class_enrolments','classenrollments',
+      'classattendance','class_attendance','attendance',
+      'program','programs','activity','activities',
+      'session','sessions','group','groups',
+      'payment','payments','invoice','invoices','transaction','transactions',
+      'charge','charges','fee','fees',
+      'visit','visits','checkin','check_in','checkins',
+      'membervisit','member_visit','membervisits',
+      'promotion','promotions','campaign','campaigns',
+      'email','emails','communication','communications'
+    ];
+    const results = {};
+    await Promise.all(candidates.map(async (p) => {
+      try {
+        const r = await fetch(`${BASE}/portal_api/v1/${p}?api_key=${KEY}`);
+        results[p] = r.status;
+      } catch(e) { results[p] = 'err'; }
+    }));
+    const ok = Object.entries(results).filter(([k,v]) => v === 200).map(([k]) => k);
+    const notFound = Object.entries(results).filter(([k,v]) => v === 404).map(([k]) => k);
+    const other = Object.entries(results).filter(([k,v]) => v !== 200 && v !== 404);
+    return { statusCode: 200,
+      body: JSON.stringify({ ok, notFound: notFound.length + ' paths', other }),
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
+  }
+
 if (type === 'membership-counts') {
     const counts = await getMembershipCounts();
     const defaults = {'Gym Access 24/7':27,'Perf Base':11,'Perf Core':6,'Perf Plus':3,'Perf Prime':2,'Plus Online':4,'Community':1,'S&C Open Session':1};
