@@ -137,6 +137,45 @@ if (type === 'membership-counts') {
     return { statusCode: 200, body: JSON.stringify(counts || defaults), headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } };
   }
 
+  if (type === 'class-schedule') {
+    const cors2 = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+    try {
+      const today = new Date();
+      const mon = new Date(today);
+      mon.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday of current week
+      const sat = new Date(mon);
+      sat.setDate(mon.getDate() + 5); // Saturday
+      const startStr = mon.toISOString().split('T')[0];
+      const endStr = sat.toISOString().split('T')[0];
+
+      const r = await fetch(`${BASE}/portal/api/v1/booking/classes/schedule?api_key=${KEY}&start_date=${startStr}&end_date=${endStr}`);
+      const d = await r.json();
+      const rows = d.result || d.data || d.classes || d.sessions || [];
+      const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+      const sessions = rows.map(s => {
+        const dt = s.classdatetime || s.start_time || s.starttime || s.start || s.datetime || s.date || '';
+        const date = new Date(dt);
+        const isValid = !isNaN(date.getTime());
+        const day = isValid ? DAY_NAMES[date.getDay()] : '';
+        const hh = isValid ? String(date.getHours()).padStart(2,'0') : '';
+        const mm = isValid ? String(date.getMinutes()).padStart(2,'0') : '';
+        const time = hh ? hh + ':' + mm : (typeof dt === 'string' && dt.length >= 16 ? dt.substring(11,16) : '');
+        return {
+          name: s.classname || s.class_name || s.name || s.title || s.description || '',
+          day,
+          time,
+          bookings: Number(s.enrolled || s.booked || s.bookings || s.enrolled_count || s.registrations || s.enrolments || 0),
+          capacity: Number(s.capacity || s.max || s.max_participants || s.maxparticipants || s.spots || 12)
+        };
+      }).filter(s => s.day && s.time);
+
+      return { statusCode: 200, headers: cors2, body: JSON.stringify({ sessions, _raw_count: rows.length }) };
+    } catch(e) {
+      return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ sessions: [], error: e.message }) };
+    }
+  }
+
     const cors = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
   try {
     let r, d;

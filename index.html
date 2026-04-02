@@ -381,8 +381,8 @@ function showPage(name, tab) {
   document.getElementById('page-' + name).classList.add('active');
   tab.classList.add('active');
 
-  if (page === 'classes') renderClasses();
-    if (page === 'members') loadMembersTab();}
+  if (name === 'classes') loadClassSchedule();
+    if (name === 'members') loadMembersTab();}
 
 // MEMBERS
 const members = [
@@ -707,6 +707,37 @@ function renderClasses(){
   if($('cls-fill'))$('cls-fill').textContent=tb2>0?fr+'%':'—';
   if($('cls-popular')&&pop)$('cls-popular').textContent=pop[0];
 }
+let _classScheduleLoaded = false;
+async function loadClassSchedule() {
+  renderClasses();
+  if (_classScheduleLoaded) return;
+  try {
+    const res = await fetch('/.netlify/functions/gymmaster?type=class-schedule');
+    const data = await res.json();
+    if (!data.sessions || !data.sessions.length) return;
+    // Build lookup: "Day|HH:MM" -> {bookings, capacity}
+    const lookup = {};
+    data.sessions.forEach(s => {
+      const key = s.day + '|' + s.time;
+      if (!lookup[key]) lookup[key] = { b: 0, c: s.capacity };
+      lookup[key].b += s.bookings;
+      if (s.capacity > lookup[key].c) lookup[key].c = s.capacity;
+    });
+    // Merge live bookings into TIMETABLE
+    [...TIMETABLE.am, ...TIMETABLE.pm].forEach(row => {
+      ['Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day => {
+        if (!row[day]) return;
+        const key = day + '|' + row.time;
+        if (lookup[key]) {
+          row[day].b = lookup[key].b;
+          row[day].c = lookup[key].c || row[day].c;
+        }
+      });
+    });
+    _classScheduleLoaded = true;
+    renderClasses();
+  } catch(e) { /* static timetable stays rendered */ }
+}
 
 async // ---- MEMBERS TAB ----
 let _allMembersCache = null;
@@ -813,5 +844,5 @@ function loadMembershipCounts() {
 
 loadLiveData();
 loadMembershipCounts();
-renderClasses();
+loadClassSchedule();
 </script>
