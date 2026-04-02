@@ -753,7 +753,7 @@ function renderMemberResults(query) {
     </div>`;
   }).join('');
 }
-function loadMembershipCounts() {
+async function loadMembershipCounts() {
   try {
     const res = await fetch('/.netlify/functions/gymmaster?type=membership-counts');
     if (!res.ok) return;
