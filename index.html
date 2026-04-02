@@ -407,46 +407,10 @@ function showPage(name, tab) {
   if (name === 'classes') loadClassSchedule();
     if (name === 'members') loadMembersTab();}
 
-// MEMBERS
-const members = [
-  {name:'Sarah M.', type:'Perf Core', status:'danger', statusLabel:'at risk', joined:'Jan 2023', lastVisit:'7 Mar 2026', visits:142},
-  {name:'James P.', type:'Perf Prime II', status:'danger', statusLabel:'at risk', joined:'Jun 2022', lastVisit:'28 Feb 2026', visits:89},
-  {name:'Emma R.', type:'Community', status:'danger', statusLabel:'at risk', joined:'Mar 2024', lastVisit:'10 Mar 2026', visits:34},
-  {name:'Tom L.', type:'Perf Plus', status:'hold', statusLabel:'on hold', joined:'Aug 2021', lastVisit:'21 Feb 2026', visits:267},
-  {name:'Priya K.', type:'Perf Core', status:'danger', statusLabel:'at risk', joined:'Nov 2023', lastVisit:'12 Mar 2026', visits:71},
-  {name:'Marcus W.', type:'Perf Prime III', status:'active', statusLabel:'active', joined:'Feb 2022', lastVisit:'27 Mar 2026', visits:388},
-  {name:'Anika S.', type:'Perf Core', status:'active', statusLabel:'active', joined:'Apr 2023', lastVisit:'26 Mar 2026', visits:198},
-  {name:'Ben A.', type:'Perf Plus', status:'active', statusLabel:'active', joined:'Sep 2021', lastVisit:'25 Mar 2026', visits:412},
-  {name:'Mia J.', type:'Perf Prime III', status:'active', statusLabel:'active', joined:'Jan 2022', lastVisit:'28 Mar 2026', visits:521},
-  {name:'Chris M.', type:'Perf Plus', status:'hold', statusLabel:'on hold', joined:'Jul 2023', lastVisit:'1 Mar 2026', visits:156},
-  {name:'Rachel B.', type:'Community', status:'active', statusLabel:'active', joined:'Oct 2024', lastVisit:'20 Mar 2026', visits:28},
-  {name:'David K.', type:'Perf Prime II', status:'active', statusLabel:'active', joined:'Mar 2022', lastVisit:'22 Mar 2026', visits:301},
-  {name:'Tara W.', type:'Community', status:'active', statusLabel:'active', joined:'Jun 2023', lastVisit:'27 Mar 2026', visits:89},
-  {name:'Jay P.', type:'Perf Plus', status:'active', statusLabel:'active', joined:'Dec 2021', lastVisit:'26 Mar 2026', visits:445},
-  {name:'Lee T.', type:'Recovery Book-in', status:'active', statusLabel:'active', joined:'Feb 2025', lastVisit:'15 Mar 2026', visits:22},
-];
-
 function renderMembers(data) {
-  document.getElementById('memberBody').innerHTML = data.map(m => `
-    <tr>
-      <td style="font-weight:500">${m.name}</td>
-      <td>${m.type}</td>
-      <td><span class="badge badge-${m.status}">${m.statusLabel}</span></td>
-      <td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:12px">${m.joined}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px">${m.lastVisit}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px">${m.visits}</td>
-    </tr>`).join('');
+  document.getElementById('memberBody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#555">Loading members…</td></tr>';
+  loadMembersTab();
 }
-
-function filterMembers(q) {
-  renderMembers(members.filter(m =>
-    m.name.toLowerCase().includes(q.toLowerCase()) ||
-    m.type.toLowerCase().includes(q.toLowerCase()) ||
-    m.statusLabel.toLowerCase().includes(q.toLowerCase())
-  ));
-}
-
-renderMembers(members);
 
 // CHARTS — all built on window load so canvas sizes are known
 Chart.defaults.color = '#6b7a9e';
