@@ -703,9 +703,8 @@ function renderClasses(){
     if(!tb)return;
     tb.innerHTML=TIMETABLE[p].map(row=>'<tr><td style="padding:8px 14px;font-size:.75rem;font-weight:600;color:#374151;border-bottom:1px solid #f0f1f3;white-space:nowrap">'+row.time+'</td>'+days.map(d=>makeCell(row[d],d,row.time)).join('')+'</tr>').join('');
   });
-  const fullCount=Object.values(_fullClasses).filter(Boolean).length;
   const $=id=>document.getElementById(id);
-  if($('cls-bookings'))$('cls-bookings').textContent=fullCount>0?fullCount+' full':'—';
+  if($('cls-bookings'))$('cls-bookings').textContent='—';
   if($('cls-fill'))$('cls-fill').textContent='—';
   if($('cls-popular'))$('cls-popular').textContent='Perform S&C';
 }
