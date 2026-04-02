@@ -407,10 +407,6 @@ function showPage(name, tab) {
   if (name === 'classes') loadClassSchedule();
     if (name === 'members') loadMembersTab();}
 
-function renderMembers(data) {
-  document.getElementById('memberBody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#555">Loading members…</td></tr>';
-  loadMembersTab();
-}
 
 // CHARTS — all built on window load so canvas sizes are known
 Chart.defaults.color = '#6b7a9e';
@@ -833,4 +829,5 @@ function loadMembershipCounts() {
 loadLiveData();
 loadMembershipCounts();
 loadClassSchedule();
+loadMembersTab();
 </script>
