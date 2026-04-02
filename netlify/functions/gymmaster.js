@@ -142,17 +142,38 @@ if (type === 'membership-counts') {
     try {
       const today = new Date();
       const mon = new Date(today);
-      mon.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday of current week
+      mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
       const sat = new Date(mon);
-      sat.setDate(mon.getDate() + 5); // Saturday
+      sat.setDate(mon.getDate() + 5);
       const startStr = mon.toISOString().split('T')[0];
       const endStr = sat.toISOString().split('T')[0];
 
-      const r = await fetch(`${BASE}/portal/api/v1/booking/classes/schedule?api_key=${KEY}&start_date=${startStr}&end_date=${endStr}`);
-      const d = await r.json();
-      const rows = d.result || d.data || d.classes || d.sessions || [];
-      const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      // Try multiple endpoint patterns, collect results for debugging
+      const attempts = [
+        `${BASE}/portal/api/v1/booking/classes/schedule?api_key=${KEY}&start_date=${startStr}&end_date=${endStr}`,
+        `${BASE}/portal/api/v1/booking/classes/schedule?api_key=${KEY}`,
+        `${BASE}/portal/api/v1/booking/classes?api_key=${KEY}&start_date=${startStr}&end_date=${endStr}`,
+        `${BASE}/portal/api/v1/booking/classes?api_key=${KEY}`,
+        `${BASE}/portal_api/v1/classschedule?api_key=${KEY}&start_date=${startStr}&end_date=${endStr}`,
+        `${BASE}/portal_api/v1/classschedule?api_key=${KEY}`,
+      ];
 
+      const debug = [];
+      let rows = [], winningUrl = null;
+
+      for (const url of attempts) {
+        try {
+          const r = await fetch(url);
+          const txt = await r.text();
+          let parsed;
+          try { parsed = JSON.parse(txt); } catch(e) { parsed = null; }
+          const candidate = parsed ? (parsed.result || parsed.data || parsed.classes || parsed.sessions || []) : [];
+          debug.push({ url: url.replace(KEY, '***').replace(BASE, ''), status: r.status, count: candidate.length, sample: txt.slice(0, 120) });
+          if (candidate.length > 0 && rows.length === 0) { rows = candidate; winningUrl = url.replace(KEY,'***').replace(BASE,''); }
+        } catch(e) { debug.push({ url: url.replace(KEY,'***').replace(BASE,''), error: e.message }); }
+      }
+
+      const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
       const sessions = rows.map(s => {
         const dt = s.classdatetime || s.start_time || s.starttime || s.start || s.datetime || s.date || '';
         const date = new Date(dt);
@@ -163,14 +184,13 @@ if (type === 'membership-counts') {
         const time = hh ? hh + ':' + mm : (typeof dt === 'string' && dt.length >= 16 ? dt.substring(11,16) : '');
         return {
           name: s.classname || s.class_name || s.name || s.title || s.description || '',
-          day,
-          time,
+          day, time,
           bookings: Number(s.enrolled || s.booked || s.bookings || s.enrolled_count || s.registrations || s.enrolments || 0),
           capacity: Number(s.capacity || s.max || s.max_participants || s.maxparticipants || s.spots || 12)
         };
       }).filter(s => s.day && s.time);
 
-      return { statusCode: 200, headers: cors2, body: JSON.stringify({ sessions, _raw_count: rows.length }) };
+      return { statusCode: 200, headers: cors2, body: JSON.stringify({ sessions, _raw_count: rows.length, _winning_url: winningUrl, _debug: debug }) };
     } catch(e) {
       return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ sessions: [], error: e.message }) };
     }
