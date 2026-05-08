@@ -1,8 +1,9 @@
 {
   "name": "gym-dashboard",
   "version": "1.0.0",
-  "description": "Performotion gym membership dashboard",
+  "description": "PerforMotion marketing dashboard",
   "dependencies": {
-    "@netlify/blobs": "^7.3.0"
+    "@netlify/blobs": "^7.3.0",
+    "@anthropic-ai/sdk": "^0.24.0"
   }
 }

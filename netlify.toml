@@ -7,3 +7,16 @@
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Scheduled function — Weekly Tuesday 8am AEST (UTC+10 → 22:00 UTC Monday)
+[functions."update-dashboard-tuesday"]
+  schedule = "0 22 * * 1"
+
+# Scheduled function — Weekly Friday 8am AEST (22:00 UTC Thursday)
+[functions."update-dashboard-friday"]
+  schedule = "0 22 * * 4"
+
+# Scheduled function — Monthly 1st of month 8am AEST (22:00 UTC last day of prior month)
+[functions."update-dashboard-monthly"]
+  schedule = "0 22 1 * *"
