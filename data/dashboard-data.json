@@ -1,0 +1,258 @@
+{
+  "_comment": "Mock data — replace each field with live API call as noted. All values realistic for small allied health business.",
+  "lastUpdated": "2026-05-08T22:00:00.000Z",
+  "healthScores": {
+    "hq": 72,
+    "online": 68,
+    "overall": 70
+  },
+  "hq": {
+    "instagram": {
+      "_source": "MOCK DATA — replace with fetch-meta.js → Meta Graph API",
+      "handle": "@performotion_HQ",
+      "followers": 2240,
+      "followersGrowthPct": 2.8,
+      "reach7d": 3180,
+      "reach7dWoWPct": 4.2,
+      "impressions7d": 7640,
+      "saves7d": 87,
+      "profileVisits7d": 312,
+      "storyViews7d": 890,
+      "postFrequency": 4,
+      "engagementRate": 2.4,
+      "topPost": "Why exercise physiology isn't physiotherapy — and why that matters for your recovery",
+      "contentFocus": "Women's Health",
+      "sparkline14d": [2100, 2110, 2130, 2145, 2160, 2170, 2180, 2195, 2205, 2215, 2220, 2228, 2235, 2240]
+    },
+    "facebook": {
+      "_source": "MOCK DATA — replace with fetch-meta.js → Meta Graph API",
+      "pageName": "PerforMotion HQ",
+      "followers": 1840,
+      "followersGrowthPct": 1.1,
+      "reach7d": 2950,
+      "reach7dWoWPct": -1.8,
+      "impressions7d": 5200,
+      "engagementRate": 0.72,
+      "postFrequency": 3,
+      "sparkline14d": [1780, 1790, 1800, 1808, 1812, 1818, 1822, 1825, 1830, 1833, 1836, 1838, 1839, 1840]
+    },
+    "email": {
+      "_source": "MOCK DATA — replace with fetch-activecampaign.js → ActiveCampaign API",
+      "listName": "PerforMotion HQ Community",
+      "totalSubscribers": 628,
+      "activeSubscribers": 601,
+      "newThisMonth": 18,
+      "unsubscribesThisMonth": 4,
+      "netListGrowth": 14,
+      "avgOpenRate": 26.4,
+      "avgClickRate": 3.1,
+      "avgUnsubRate": 0.42,
+      "lastCampaign": {
+        "name": "May Newsletter — Women's Health Week",
+        "date": "2026-05-06",
+        "openRate": 28.1,
+        "clickRate": 3.6,
+        "unsubRate": 0.3,
+        "sent": 628
+      },
+      "sparkline14d": [600, 602, 604, 607, 609, 610, 612, 615, 616, 618, 621, 623, 625, 628]
+    },
+    "dailyReach30d": {
+      "_source": "MOCK DATA — replace with fetch-meta.js",
+      "instagram": [280, 310, 290, 350, 420, 380, 260, 295, 315, 305, 340, 410, 395, 270, 285, 330, 360, 400, 375, 250, 300, 320, 345, 415, 385, 265, 290, 310, 335, 318],
+      "facebook": [210, 240, 225, 270, 320, 295, 200, 220, 245, 235, 265, 315, 300, 210, 220, 255, 275, 310, 285, 195, 230, 248, 265, 320, 295, 205, 222, 238, 258, 245]
+    }
+  },
+  "online": {
+    "instagram": {
+      "_source": "MOCK DATA — replace with fetch-meta.js → Meta Graph API",
+      "handle": "@performotion_online",
+      "followers": 6480,
+      "followersGrowthPct": 3.4,
+      "reach7d": 8240,
+      "reach7dWoWPct": 6.1,
+      "impressions7d": 19500,
+      "saves7d": 312,
+      "profileVisits7d": 740,
+      "storyViews7d": 2100,
+      "postFrequency": 5,
+      "engagementRate": 3.1,
+      "topPost": "Why most powerlifters mismanage their first serious back injury — and what to do instead",
+      "contentFocus": "Strength Rehab",
+      "sparkline14d": [6100, 6150, 6200, 6240, 6280, 6300, 6320, 6350, 6380, 6400, 6420, 6445, 6462, 6480]
+    },
+    "youtube": {
+      "_source": "MOCK DATA — replace with fetch-youtube.js → YouTube Data API v3",
+      "channelName": "PerforMotion Online",
+      "subscribers": 1658,
+      "subscribersGrowthPct": 2.1,
+      "views7d": 4820,
+      "views7dWoWPct": 8.3,
+      "watchTimeMinutes": 14600,
+      "likes7d": 142,
+      "subsGained7d": 34,
+      "comments7d": 28,
+      "videosPublished7d": 2,
+      "avgEngagementRate": 3.8,
+      "topVideo": {
+        "title": "How I program around a grade 2 hamstring tear — powerlifter case study",
+        "views": 6240,
+        "likes": 312,
+        "comments": 47
+      },
+      "sparkline14d": [1560, 1575, 1588, 1600, 1610, 1620, 1628, 1635, 1640, 1645, 1648, 1651, 1654, 1658]
+    },
+    "email": {
+      "_source": "MOCK DATA — replace with fetch-activecampaign.js → ActiveCampaign API",
+      "listName": "PerforMotion Online — Coaching List",
+      "totalSubscribers": 1748,
+      "activeSubscribers": 1690,
+      "newThisMonth": 42,
+      "unsubscribesThisMonth": 11,
+      "netListGrowth": 31,
+      "avgOpenRate": 31.2,
+      "avgClickRate": 4.8,
+      "avgUnsubRate": 0.38,
+      "lastCampaign": {
+        "name": "April Programming Update — Peaking Block",
+        "date": "2026-05-01",
+        "openRate": 33.4,
+        "clickRate": 5.2,
+        "unsubRate": 0.28,
+        "sent": 1748
+      },
+      "sparkline14d": [1660, 1668, 1678, 1690, 1700, 1710, 1714, 1718, 1724, 1730, 1735, 1740, 1744, 1748]
+    },
+    "dailyReach30d": {
+      "_source": "MOCK DATA — replace with fetch-meta.js and fetch-youtube.js",
+      "instagram": [620, 710, 680, 810, 950, 880, 590, 640, 720, 695, 790, 910, 865, 575, 620, 740, 820, 905, 860, 555, 640, 710, 780, 925, 870, 560, 610, 695, 755, 720],
+      "youtube": [380, 440, 410, 520, 610, 570, 360, 390, 450, 430, 490, 580, 545, 355, 380, 460, 510, 570, 540, 340, 390, 440, 480, 595, 555, 345, 375, 430, 470, 452]
+    }
+  },
+  "ads": {
+    "_source": "MOCK DATA — replace with fetch-meta.js → Meta Ads API",
+    "totalSpend30d": 1240,
+    "totalReach30d": 28400,
+    "totalLeads30d": 38,
+    "overallCPL": 32.6,
+    "roas": 3.2,
+    "campaigns": [
+      {
+        "name": "HQ — New Patient Acquisition — May",
+        "brand": "HQ",
+        "status": "ACTIVE",
+        "spend": 680,
+        "reach": 14200,
+        "leads": 18,
+        "cpl": 37.8,
+        "cpc": 1.42
+      },
+      {
+        "name": "Online — Coaching Enquiry — May",
+        "brand": "Online",
+        "status": "ACTIVE",
+        "spend": 420,
+        "reach": 9800,
+        "leads": 14,
+        "cpl": 30.0,
+        "cpc": 0.95
+      },
+      {
+        "name": "HQ — Women's Health Retargeting",
+        "brand": "HQ",
+        "status": "ACTIVE",
+        "spend": 140,
+        "reach": 4400,
+        "leads": 6,
+        "cpl": 23.3,
+        "cpc": 0.78
+      }
+    ],
+    "creativePerformance": [
+      { "name": "HQ Reel — Shoulder injury case study", "format": "Reel", "impressions": 8200, "ctr": 3.1, "leads": 8, "cpl": 25.0 },
+      { "name": "Online Carousel — Peaking block 101", "format": "Carousel", "impressions": 6800, "ctr": 2.8, "leads": 9, "cpl": 20.2 },
+      { "name": "HQ Static — Bulk billed EP", "format": "Post", "impressions": 5100, "ctr": 1.9, "leads": 5, "cpl": 42.0 },
+      { "name": "Online Reel — Hip impingement programming", "format": "Reel", "impressions": 7400, "ctr": 2.4, "leads": 6, "cpl": 28.3 }
+    ],
+    "dailySpend30d": [35, 42, 38, 48, 52, 44, 30, 36, 43, 40, 47, 54, 50, 31, 35, 44, 49, 53, 47, 28, 38, 43, 46, 55, 49, 29, 34, 42, 45, 40]
+  },
+  "bookings": {
+    "_source": "MOCK DATA — replace with fetch-halaxy.js → Halaxy API",
+    "totalAppointments30d": 94,
+    "newPatients30d": 16,
+    "returningPatients30d": 78,
+    "cancellationRate": 8.4,
+    "noShowRate": 3.2,
+    "avgLeadTimeDays": 5,
+    "appointmentTypes": [
+      { "type": "Initial Consultation — EP", "count": 16 },
+      { "type": "Follow-up — EP", "count": 48 },
+      { "type": "Exercise Class", "count": 18 },
+      { "type": "Telehealth — EP", "count": 12 }
+    ],
+    "bookingSources": {
+      "_source": "MOCK DATA — replace with zapier-intake.js attribution data",
+      "googleSearchOrganic": 32,
+      "googleAds": 8,
+      "instagramHQ": 14,
+      "instagramOnline": 6,
+      "facebook": 9,
+      "direct": 18,
+      "referral": 7
+    },
+    "dailyAppointments30d": [2, 3, 4, 3, 5, 2, 0, 3, 4, 3, 4, 5, 3, 1, 2, 4, 4, 5, 4, 0, 3, 3, 4, 5, 4, 1, 2, 3, 4, 3]
+  },
+  "seo": {
+    "_source": "MOCK DATA — replace with fetch-gsc.js → Google Search Console API",
+    "totalClicks28d": 842,
+    "totalImpressions28d": 18640,
+    "avgCTR": "4.5",
+    "avgPosition": "14.2",
+    "keywords": [
+      { "keyword": "exercise physiologist brisbane", "brand": "HQ", "position": 8, "prevPosition": 11, "volume": 320, "url": "/services" },
+      { "keyword": "exercise physiologist teneriffe", "brand": "HQ", "position": 3, "prevPosition": 4, "volume": 90, "url": "/" },
+      { "keyword": "women's health exercise physiology brisbane", "brand": "HQ", "position": 12, "prevPosition": 15, "volume": 140, "url": "/womens-health" },
+      { "keyword": "ep near me brisbane", "brand": "HQ", "position": 18, "prevPosition": 22, "volume": 210, "url": "/contact" },
+      { "keyword": "chronic pain exercise physiology", "brand": "HQ", "position": 24, "prevPosition": 20, "volume": 170, "url": "/chronic-conditions" },
+      { "keyword": "ndis exercise physiology brisbane", "brand": "HQ", "position": 6, "prevPosition": 8, "volume": 260, "url": "/ndis" },
+      { "keyword": "medicare exercise physiology brisbane", "brand": "HQ", "position": 9, "prevPosition": 9, "volume": 300, "url": "/medicare" },
+      { "keyword": "strength training with injury brisbane", "brand": "HQ", "position": 14, "prevPosition": 17, "volume": 110, "url": "/services" },
+      { "keyword": "online powerlifting coach", "brand": "Online", "position": 11, "prevPosition": 14, "volume": 480, "url": "/online-coaching" },
+      { "keyword": "online exercise physiologist", "brand": "Online", "position": 7, "prevPosition": 10, "volume": 390, "url": "/online" },
+      { "keyword": "powerlifting program australia", "brand": "Online", "position": 19, "prevPosition": 25, "volume": 290, "url": "/programs" },
+      { "keyword": "strength rehab online", "brand": "Online", "position": 22, "prevPosition": 28, "volume": 180, "url": "/online-coaching" },
+      { "keyword": "online ep coach", "brand": "Online", "position": 15, "prevPosition": 18, "volume": 140, "url": "/online" }
+    ]
+  },
+  "emailTrends6m": {
+    "_source": "MOCK DATA — replace with fetch-activecampaign.js",
+    "months": ["Dec 2025", "Jan 2026", "Feb 2026", "Mar 2026", "Apr 2026", "May 2026"],
+    "hq": {
+      "openRates": [22.1, 23.8, 24.4, 25.1, 26.0, 26.4],
+      "clickRates": [2.4, 2.6, 2.8, 2.9, 3.0, 3.1],
+      "unsubRates": [0.51, 0.45, 0.42, 0.40, 0.43, 0.42],
+      "emailsSent": [580, 590, 598, 608, 615, 628]
+    },
+    "online": {
+      "openRates": [26.8, 28.1, 29.4, 30.1, 30.8, 31.2],
+      "clickRates": [3.8, 4.1, 4.3, 4.5, 4.7, 4.8],
+      "unsubRates": [0.48, 0.42, 0.40, 0.38, 0.39, 0.38],
+      "emailsSent": [1580, 1620, 1660, 1690, 1720, 1748]
+    }
+  },
+  "ga4": {
+    "_source": "MOCK DATA — replace with fetch-ga4.js → Google Analytics 4",
+    "activeUsers30d": 1840,
+    "sessions30d": 2360,
+    "bookingClicks30d": 142,
+    "dailyActiveUsers30d": [48, 62, 55, 70, 82, 74, 40, 52, 65, 60, 72, 85, 78, 42, 50, 68, 75, 84, 76, 38, 54, 63, 71, 88, 80, 41, 49, 62, 70, 64],
+    "dailyBookingClicks30d": [3, 5, 4, 6, 8, 6, 2, 4, 5, 5, 6, 8, 7, 3, 4, 5, 6, 8, 7, 2, 4, 5, 6, 9, 7, 3, 4, 5, 6, 5],
+    "trafficSources": [
+      { "source": "Organic Search", "sessions": 980 },
+      { "source": "Direct", "sessions": 620 },
+      { "source": "Social", "sessions": 480 },
+      { "source": "Paid Search", "sessions": 180 },
+      { "source": "Referral", "sessions": 100 }
+    ]
+  }
+}
