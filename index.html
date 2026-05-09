@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PerforMotion — Membership Dashboard</title>
+  <title>PerforMotion — Marketing Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
@@ -22,22 +22,27 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.9rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.9rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px; }
     .logo { display: flex; align-items: center; gap: 12px; }
     .logo-mark { width: 34px; height: 34px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; color: #fff; }
     .logo-text { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
     .logo-sub { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
-    .live-badge { display: flex; align-items: center; gap: 6px; background: rgba(15,35,80,0.07); border: 1px solid rgba(15,35,80,0.15); color: var(--accent); font-size: 11px; padding: 4px 10px; border-radius: 20px; font-family: 'DM Mono', monospace; }
-    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .last-updated { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .btn { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+    .btn:hover { background: var(--bg); }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { opacity: 0.85; background: var(--accent); }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; overflow-x: auto; }
     .nav-tab { padding: 12px 18px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s; }
     .nav-tab:hover { color: var(--text); }
     .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-    .page { position: absolute; left: -9999px; top: 0; width: 1200px; padding: 2rem; pointer-events: none; opacity: 0; }
-    .page.active { position: relative; left: auto; top: auto; width: 100%; max-width: 1400px; margin: 0 auto; pointer-events: all; opacity: 1; }
+    .page { display: none; padding: 2rem; }
+    .page.active { display: block; max-width: 1400px; margin: 0 auto; }
 
     .section-label { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; margin-top: 2rem; }
     .section-label:first-child { margin-top: 0; }
@@ -45,76 +50,66 @@
     .card-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
     .card-sub { font-size: 11px; color: var(--muted); margin-bottom: 1rem; font-family: 'DM Mono', monospace; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
 
     .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
     .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.3rem; position: relative; overflow: hidden; }
-    .metric::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; background: var(--accent-color, var(--accent)); }
+    .metric::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: var(--accent-color, var(--accent)); }
     .metric.warn { --accent-color: var(--warn); }
     .metric.danger { --accent-color: var(--danger); }
     .metric.success { --accent-color: var(--success); }
     .metric.info { --accent-color: var(--accent2); }
     .metric-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
     .metric-value { font-size: 28px; font-weight: 300; letter-spacing: -0.03em; line-height: 1; color: var(--text); }
-    .metric-value span { font-size: 14px; color: var(--muted); }
     .metric-sub { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: 'DM Mono', monospace; }
     .metric-sub.up { color: var(--success); }
     .metric-sub.down { color: var(--danger); }
 
-    .alert-strip { background: rgba(212,130,10,0.06); border: 1px solid rgba(212,130,10,0.25); border-radius: 14px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
-    .alert-header { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--warn); margin-bottom: 12px; }
-    .alert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
-    .alert-card { background: rgba(212,130,10,0.04); border: 1px solid rgba(212,130,10,0.18); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
-    .alert-name { font-size: 13px; font-weight: 500; color: var(--text); }
-    .alert-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .alert-days { font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; background: rgba(192,57,43,0.1); color: var(--danger); padding: 3px 8px; border-radius: 20px; }
+    .health-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.75rem 1.5rem; }
+    .health-num { font-size: 52px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; }
+    .health-lbl { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 8px; letter-spacing: 0.06em; }
+    .health-bar-wrap { width: 80%; height: 4px; background: rgba(15,35,80,0.08); border-radius: 2px; margin-top: 12px; }
+    .health-bar { height: 4px; border-radius: 2px; transition: width 0.6s ease; }
 
-    .bar-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-    .bar-row:last-child { border-bottom: none; }
-    .bar-label { font-size: 12px; color: var(--muted); width: 130px; flex-shrink: 0; }
-    .bar-bg { flex: 1; height: 4px; background: rgba(15,35,80,0.08); border-radius: 2px; }
-    .bar-fill { height: 4px; border-radius: 2px; }
-    .bar-val { font-size: 12px; font-family: 'DM Mono', monospace; min-width: 38px; text-align: right; }
+    .stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-key { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+    .stat-val { font-size: 13px; font-weight: 500; font-family: 'DM Mono', monospace; text-align: right; }
 
-    .type-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
-    .type-row:last-child { border-bottom: none; }
-    .type-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .type-name { font-size: 13px; flex: 1; }
-    .type-bar-bg { width: 80px; height: 4px; background: rgba(15,35,80,0.08); border-radius: 2px; }
-    .type-bar { height: 4px; border-radius: 2px; }
-    .type-count { font-size: 13px; font-weight: 500; font-family: 'DM Mono', monospace; min-width: 36px; text-align: right; }
-    .type-pct { font-size: 11px; color: var(--muted); min-width: 34px; text-align: right; font-family: 'DM Mono', monospace; }
+    .source-tag { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; background: var(--bg); border-radius: 4px; border: 1px solid var(--border); }
+    .source-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .dot-live { background: var(--success); }
+    .dot-mock { background: var(--warn); }
 
-    .search-bar { display: flex; gap: 10px; margin-bottom: 1.25rem; }
-    .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; }
-    .search-input:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--muted); }
+    .badge { display: inline-block; font-size: 10px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+    .badge-hq { background: rgba(15,35,80,0.08); color: var(--accent); }
+    .badge-online { background: rgba(42,82,160,0.1); color: var(--accent2); }
+    .badge-active { background: rgba(26,122,74,0.1); color: var(--success); }
+    .badge-warn { background: rgba(212,130,10,0.1); color: var(--warn); }
 
     .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .data-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); font-weight: 400; }
-    .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:hover td { background: var(--bg); }
 
-    .badge { display: inline-block; font-size: 10px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-    .badge-active { background: rgba(26,122,74,0.1); color: var(--success); }
-    .badge-hold { background: rgba(212,130,10,0.1); color: var(--warn); }
-    .badge-danger { background: rgba(192,57,43,0.1); color: var(--danger); }
+    .pos-up { color: var(--success); font-weight: 600; font-family: 'DM Mono', monospace; font-size: 12px; }
+    .pos-down { color: var(--danger); font-weight: 600; font-family: 'DM Mono', monospace; font-size: 12px; }
+    .pos-same { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; }
 
-    .class-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .class-row:last-child { border-bottom: none; }
-    .class-info { flex: 1; }
-    .class-name { font-size: 13px; font-weight: 500; }
-    .class-time { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
-    .class-cap-bg { width: 100px; height: 6px; background: rgba(15,35,80,0.08); border-radius: 3px; }
-    .class-cap-fill { height: 6px; border-radius: 3px; }
-    .class-cap-text { font-size: 11px; font-family: 'DM Mono', monospace; min-width: 50px; text-align: right; }
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .filter-tab { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--muted); transition: all 0.15s; }
+    .filter-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-    .sample-notice { text-align: center; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 2rem 0 0.5rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .ai-panel { background: linear-gradient(135deg, rgba(15,35,80,0.03), rgba(42,82,160,0.04)); border: 1px solid rgba(15,35,80,0.12); border-radius: 14px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .ai-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+    .ai-title { font-size: 13px; font-weight: 500; }
+    .ai-sub { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 12px; }
+    .ai-content { font-size: 13px; line-height: 1.7; color: var(--text); white-space: pre-wrap; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px; }
+    .ai-loading { color: var(--muted); font-size: 12px; font-family: 'DM Mono', monospace; padding: 8px 0; }
 
-    @media(max-width:900px){ .grid2{ grid-template-columns:1fr; } .page{ padding:1rem; } }
-      .mem-filter-btn { background:#1a1a1a; border:1px solid #2a2a2a; color:#888; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; transition:all 0.2s; }
-    .mem-filter-btn.active { background:#c62828; border-color:#c62828; color:#fff; }
-</style>
+    @media(max-width:900px) { .grid2, .grid3 { grid-template-columns: 1fr; } .page { padding: 1rem; } }
+  </style>
 </head>
 <body>
 
@@ -123,656 +118,805 @@
     <div class="logo-mark">P</div>
     <div>
       <div class="logo-text">PerforMotion</div>
-      <div class="logo-sub">Membership Dashboard</div>
+      <div class="logo-sub">Marketing Dashboard</div>
     </div>
   </div>
-  <div class="live-badge"><div class="live-dot"></div>SAMPLE DATA</div>
+  <div class="topbar-right">
+    <span class="last-updated" id="last-updated">Loading…</span>
+    <button class="btn btn-sm" id="refresh-btn" onclick="refreshDashboard()">↻ Refresh</button>
+  </div>
 </div>
 
 <div class="nav">
   <div class="nav-tab active" onclick="showPage('overview',this)">Overview</div>
-  <div class="nav-tab" onclick="showPage('members',this)">Members</div>
-  <div class="nav-tab" onclick="showPage('classes',this)">Classes</div>
-  <div class="nav-tab" onclick="showPage('revenue',this)">Revenue</div>
-  <div class="nav-tab" onclick="showPage('cancellations',this)">Cancellations</div>
+  <div class="nav-tab" onclick="showPage('hq',this)">HQ</div>
+  <div class="nav-tab" onclick="showPage('online',this)">Online</div>
+  <div class="nav-tab" onclick="showPage('seo',this)">SEO</div>
+  <div class="nav-tab" onclick="showPage('email',this)">Email</div>
+  <div class="nav-tab" onclick="showPage('ads',this)">Paid Ads</div>
+  <div class="nav-tab" onclick="showPage('bookings',this)">Bookings</div>
 </div>
 
-<!-- OVERVIEW -->
+<!-- ── OVERVIEW ── -->
 <div class="page active" id="page-overview">
-  <div class="section-label">Overview — current snapshot</div>
+  <div class="section-label">Marketing health</div>
+  <div class="grid3" style="margin-bottom:1.5rem">
+    <div class="card health-card">
+      <div class="health-num" id="score-overall">—</div>
+      <div class="health-lbl">OVERALL HEALTH</div>
+      <div class="health-bar-wrap"><div class="health-bar" id="hbar-overall"></div></div>
+    </div>
+    <div class="card health-card">
+      <div class="health-num" id="score-hq">—</div>
+      <div class="health-lbl">HQ HEALTH</div>
+      <div class="health-bar-wrap"><div class="health-bar" id="hbar-hq"></div></div>
+    </div>
+    <div class="card health-card">
+      <div class="health-num" id="score-online">—</div>
+      <div class="health-lbl">ONLINE HEALTH</div>
+      <div class="health-bar-wrap"><div class="health-bar" id="hbar-online"></div></div>
+    </div>
+  </div>
+
+  <div class="section-label">Key metrics this week</div>
   <div class="metrics">
-    <div class="metric"><div class="metric-label">Current members</div><div id="stat-active" class="metric-value">249</div><div class="metric-sub">Active now</div></div>
-    <div class="metric warn"><div class="metric-label">Members on hold</div><div id="stat-hold" class="metric-value">7</div><div class="metric-sub">Active holds</div></div>
-    <div class="metric info"><div class="metric-label">Sign-ups this month</div><div id="stat-signups-mtd" class="metric-value">17</div><div class="metric-sub" id="stat-month-label">March 2026</div></div>
-    <div class="metric"><div class="metric-label">Avg. member lifetime</div><div id="stat-lifetime" class="metric-value">20 <span>mo</span></div><div class="metric-sub">All active members</div></div>
-    <div class="metric success"><div class="metric-label">Retention rate</div><div id="stat-retention" class="metric-value">97 <span>%</span></div><div class="metric-sub" id="stat-retention-sub">Active vs total</div></div>
-  </div>
-
-  <div class="alert-strip">
-    <div class="alert-header">⚠ At-risk members — no visit in 14+ days (11 members)</div>
-    <div class="alert-grid">
-      <div class="alert-card"><div><div class="alert-name">Sarah M.</div><div class="alert-detail">Perf Core — monthly DD</div></div><div class="alert-days">21 days</div></div>
-      <div class="alert-card"><div><div class="alert-name">James P.</div><div class="alert-detail">Perf Prime II — annual</div></div><div class="alert-days">28 days</div></div>
-      <div class="alert-card"><div><div class="alert-name">Emma R.</div><div class="alert-detail">Community membership</div></div><div class="alert-days">18 days</div></div>
-      <div class="alert-card"><div><div class="alert-name">Tom L.</div><div class="alert-detail">Perf Plus — concession</div></div><div class="alert-days">35 days</div></div>
-      <div class="alert-card"><div><div class="alert-name">Priya K.</div><div class="alert-detail">Perf Core — monthly DD</div></div><div class="alert-days">16 days</div></div>
-      <div class="alert-card"><div><div class="alert-name">Marcus W.</div><div class="alert-detail">Perf Prime III</div></div><div class="alert-days">22 days</div></div>
+    <div class="metric info">
+      <div class="metric-label">HQ Instagram reach</div>
+      <div class="metric-value" id="ov-hq-reach">—</div>
+      <div class="metric-sub" id="ov-hq-reach-sub">7-day</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Online IG reach</div>
+      <div class="metric-value" id="ov-on-reach">—</div>
+      <div class="metric-sub" id="ov-on-reach-sub">7-day</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">YouTube views</div>
+      <div class="metric-value" id="ov-yt-views">—</div>
+      <div class="metric-sub">7-day</div>
+    </div>
+    <div class="metric success">
+      <div class="metric-label">Bookings (30d)</div>
+      <div class="metric-value" id="ov-bookings">—</div>
+      <div class="metric-sub" id="ov-new-patients">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Email subscribers</div>
+      <div class="metric-value" id="ov-email-total">—</div>
+      <div class="metric-sub" id="ov-email-sub">Combined</div>
+    </div>
+    <div class="metric warn">
+      <div class="metric-label">Ad spend (30d)</div>
+      <div class="metric-value" id="ov-ad-spend">—</div>
+      <div class="metric-sub" id="ov-ad-cpl">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Website sessions</div>
+      <div class="metric-value" id="ov-sessions">—</div>
+      <div class="metric-sub">30-day</div>
+    </div>
+    <div class="metric success">
+      <div class="metric-label">Booking clicks</div>
+      <div class="metric-value" id="ov-bk-clicks">—</div>
+      <div class="metric-sub">Website (30d)</div>
     </div>
   </div>
 
-  <div class="grid2">
-    <div class="card">
-      <div class="card-title">Sign-ups vs cancellations</div>
-      <div class="card-sub">2021 — 2026</div>
-      <div style="position:relative;height:200px;"><canvas id="c-signup"></canvas></div>
+  <div class="ai-panel">
+    <div class="ai-header">
+      <div>
+        <div class="ai-title">AI Insights</div>
+        <div class="ai-sub">Powered by Claude — requires ANTHROPIC_API_KEY</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm btn-primary" onclick="generateInsights('hq')">Generate HQ insights</button>
+        <button class="btn btn-sm" onclick="generateInsights('online')">Generate Online insights</button>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title">Churn rate</div>
-      <div class="card-sub">Last 12 months</div>
-      <div style="position:relative;height:200px;"><canvas id="c-retention"></canvas></div>
-    </div>
+    <div class="ai-loading" id="ai-loading" style="display:none">Generating insights…</div>
+    <div class="ai-content" id="ai-content" style="display:none"></div>
   </div>
-
-  <div class="section-label">Membership types — current active</div>
-  <div class="card" id="membership-types-card">
-    <div id="type-rows">
-      <div class="type-row"><div class="type-dot" style="background:#0f2350"></div><span class="type-name">Gym Access 24/7</span><div class="type-bar-bg"><div class="type-bar" id="bar-t1" style="width:49%;background:#0f2350"></div></div><span id="count-t1" class="type-count">27</span><span id="pct-t1" class="type-pct">49%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#2a52a0"></div><span class="type-name">Perf Base</span><div class="type-bar-bg"><div class="type-bar" id="bar-t2" style="width:20%;background:#2a52a0"></div></div><span id="count-t2" class="type-count">11</span><span id="pct-t2" class="type-pct">20%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#4a72c0"></div><span class="type-name">Perf Core</span><div class="type-bar-bg"><div class="type-bar" id="bar-t3" style="width:11%;background:#4a72c0"></div></div><span id="count-t3" class="type-count">6</span><span id="pct-t3" class="type-pct">11%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#5e88c5"></div><span class="type-name">Perf Plus</span><div class="type-bar-bg"><div class="type-bar" id="bar-t4" style="width:5%;background:#5e88c5"></div></div><span id="count-t4" class="type-count">3</span><span id="pct-t4" class="type-pct">5%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#7a9ed5"></div><span class="type-name">Perf Prime</span><div class="type-bar-bg"><div class="type-bar" id="bar-t5" style="width:4%;background:#7a9ed5"></div></div><span id="count-t5" class="type-count">2</span><span id="pct-t5" class="type-pct">4%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#8aadd8"></div><span class="type-name">Plus Online</span><div class="type-bar-bg"><div class="type-bar" id="bar-t6" style="width:7%;background:#8aadd8"></div></div><span id="count-t6" class="type-count">4</span><span id="pct-t6" class="type-pct">7%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#aac4e0"></div><span class="type-name">Community</span><div class="type-bar-bg"><div class="type-bar" id="bar-t7" style="width:2%;background:#aac4e0"></div></div><span id="count-t7" class="type-count">1</span><span id="pct-t7" class="type-pct">2%</span></div>
-      <div class="type-row"><div class="type-dot" style="background:#cdd9ec"></div><span class="type-name">S&amp;C Open Session</span><div class="type-bar-bg"><div class="type-bar" id="bar-t8" style="width:2%;background:#cdd9ec"></div></div><span id="count-t8" class="type-count">1</span><span id="pct-t8" class="type-pct">2%</span></div>
-    </div>
-    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-      <a id="recovery-link" href="#" onclick="alert('Set your Recovery booking URL here'); return false;" style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.82rem;font-weight:500;color:var(--accent2);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--accent2);border-radius:6px;">
-        📅 Recovery book-ins <span style="font-size:0.7rem;color:var(--muted)">(link to be connected)</span>
-      </a>
-    </div>
-  </div>
-  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
 </div>
 
-<!-- MEMBERS -->
-<div class="page" id="page-members">
-  <div class="section-label">Members — search &amp; profiles</div>
+<!-- ── HQ ── -->
+<div class="page" id="page-hq">
+  <div class="section-label">PerforMotion HQ — social & email</div>
+  <div class="grid3" style="margin-bottom:14px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title">Instagram HQ</div>
+        <span class="source-tag" id="src-hq-ig"><span class="source-dot dot-mock"></span>mock</span>
+      </div>
+      <div id="hq-ig-stats"></div>
+      <div style="margin-top:14px"><canvas id="spark-hq-ig" height="40"></canvas></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title">Facebook HQ</div>
+        <span class="source-tag"><span class="source-dot dot-mock"></span>mock</span>
+      </div>
+      <div id="hq-fb-stats"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title">Email — HQ Community</div>
+        <span class="source-tag"><span class="source-dot dot-mock"></span>mock</span>
+      </div>
+      <div id="hq-email-stats"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Daily reach — Instagram & Facebook HQ (30 days)</div>
+    <div class="card-sub">Combined organic reach</div>
+    <div style="position:relative;height:200px"><canvas id="c-hq-reach"></canvas></div>
+  </div>
+</div>
+
+<!-- ── ONLINE ── -->
+<div class="page" id="page-online">
+  <div class="section-label">PerforMotion Online — social, YouTube & email</div>
+  <div class="grid3" style="margin-bottom:14px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title">Instagram Online</div>
+        <span class="source-tag"><span class="source-dot dot-mock"></span>mock</span>
+      </div>
+      <div id="on-ig-stats"></div>
+      <div style="margin-top:14px"><canvas id="spark-on-ig" height="40"></canvas></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title">YouTube</div>
+        <span class="source-tag"><span class="source-dot dot-mock"></span>mock</span>
+      </div>
+      <div id="on-yt-stats"></div>
+      <div style="margin-top:14px"><canvas id="spark-on-yt" height="40"></canvas></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title">Email — Coaching List</div>
+        <span class="source-tag"><span class="source-dot dot-mock"></span>mock</span>
+      </div>
+      <div id="on-email-stats"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Daily reach — Instagram & YouTube (30 days)</div>
+    <div class="card-sub">Organic reach and views</div>
+    <div style="position:relative;height:200px"><canvas id="c-on-reach"></canvas></div>
+  </div>
+</div>
+
+<!-- ── SEO ── -->
+<div class="page" id="page-seo">
+  <div class="section-label">SEO — Google Search Console (28 days)</div>
   <div class="metrics" style="margin-bottom:1.5rem">
-    <div class="metric"><div class="metric-label">Total active</div><div class="metric-value" id="mem-active">—</div></div>
-    <div class="metric"><div class="metric-label">On hold</div><div class="metric-value" id="mem-hold">—</div></div>
-    <div class="metric warn"><div class="metric-label">At risk (14+ days)</div><div class="metric-value" id="mem-atrisk">—</div></div>
-    <div class="metric info"><div class="metric-label">New this month</div><div class="metric-value" id="mem-new">—</div></div>
-  </div>
-  <div class="card">
-    <input id="mem-search" type="text" placeholder="Search by name…" oninput="filterMembers()" style="width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:10px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;margin-bottom:16px">
-    <div id="mem-status" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px">Loading members…</div>
-    <div id="mem-results"></div>
-  </div>
-</div>
-
-<!-- CLASSES -->
-<div class="page" id="page-classes">
-  <div class="section-label">CLASSES — WEEKLY TIMETABLE</div>
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px">
-
-    <!-- MONDAY -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:10px 14px;background:#0f2350;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.06em">MONDAY</div>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">05:15 Perform Strong (Lower)</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">06:15 Perform S&amp;C</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">10:00 Stronger for Longer</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">17:00 Perform S&amp;C</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">18:00 Perform Strong (Lower)</a>
+    <div class="metric">
+      <div class="metric-label">Total clicks</div>
+      <div class="metric-value" id="seo-clicks">—</div>
+      <div class="metric-sub">28-day</div>
     </div>
-
-    <!-- TUESDAY -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:10px 14px;background:#0f2350;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.06em">TUESDAY</div>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">05:15 Perform Strong (Upper)</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">06:15 Master the Movement</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">11:00 Beat It</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">12:00 Core Collective</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">17:00 Perform S&amp;C</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">18:00 Perform Strong (Upper)</a>
+    <div class="metric">
+      <div class="metric-label">Impressions</div>
+      <div class="metric-value" id="seo-impressions">—</div>
+      <div class="metric-sub">28-day</div>
     </div>
-
-    <!-- WEDNESDAY -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:10px 14px;background:#0f2350;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.06em">WEDNESDAY</div>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">05:15 Restore &amp; Perform</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">06:15 Stronger for Longer</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">17:00 Restore &amp; Perform</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">18:00 Master the Movement</a>
+    <div class="metric info">
+      <div class="metric-label">Avg. CTR</div>
+      <div class="metric-value" id="seo-ctr">—</div>
+      <div class="metric-sub">Click-through rate</div>
     </div>
-
-    <!-- THURSDAY -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:10px 14px;background:#0f2350;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.06em">THURSDAY</div>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">05:15 Perform Strong (Lower)</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">06:15 Perform S&amp;C</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">09:00 Stronger for Longer</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">11:00 Beat It</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">17:00 Perform S&amp;C</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">18:00 Perform Strong (Lower)</a>
-    </div>
-
-    <!-- FRIDAY -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:10px 14px;background:#0f2350;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.06em">FRIDAY</div>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">05:15 Perform Strong (Lower)</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">06:15 Perform Strong (Upper)</a>
-    </div>
-
-    <!-- SATURDAY -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:10px 14px;background:#0f2350;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.06em">SATURDAY</div>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">06:15 Perform S&amp;C</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;border-bottom:1px solid #eef0f3;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">07:00 Boxing</a>
-      <a href="https://performotion.gymmasteronline.com/booking/schedule?view=week&rid=520521" target="_blank" style="display:block;padding:10px 14px;text-decoration:none;color:#0f2350;font-size:.8rem;font-weight:500">12:00 Core Collective</a>
-    </div>
-
-  </div>
-  <div style="font-size:.75rem;color:#9ca3af;text-align:center;padding:4px 0 16px">Click any class to view bookings in GymMaster</div>
-</div>
-<!-- REVENUE -->
-<div class="page" id="page-revenue">
-  <div class="section-label">Revenue & payments</div>
-  <div class="metrics">
-    <div class="metric"><div class="metric-label">Revenue this month</div><div class="metric-value">$41,280</div><div class="metric-sub up">↑ +8% vs last month</div></div>
-    <div class="metric danger"><div class="metric-label">Overdue / failed</div><div class="metric-value">$3,840</div><div class="metric-sub down">14 members</div></div>
-    <div class="metric warn"><div class="metric-label">Renewals this week</div><div class="metric-value">28</div><div class="metric-sub">Action needed</div></div>
-    <div class="metric info"><div class="metric-label">YTD revenue</div><div class="metric-value">$118,440</div></div>
-  </div>
-  <div class="grid2">
-    <div class="card">
-      <div class="card-title">Revenue by membership type</div>
-      <div class="card-sub">This month</div>
-      <div style="position:relative;height:220px;"><canvas id="c-revtype"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Monthly revenue trend</div>
-      <div class="card-sub">Last 12 months</div>
-      <div style="position:relative;height:220px;"><canvas id="c-revtrend"></canvas></div>
+    <div class="metric warn">
+      <div class="metric-label">Avg. position</div>
+      <div class="metric-value" id="seo-position">—</div>
+      <div class="metric-sub">Google ranking</div>
     </div>
   </div>
-  <div class="section-label">Overdue & failed payments</div>
-  <div class="card">
+  <div class="filter-tabs">
+    <div class="filter-tab active" onclick="filterSeo('all',this)">All keywords</div>
+    <div class="filter-tab" onclick="filterSeo('HQ',this)">HQ</div>
+    <div class="filter-tab" onclick="filterSeo('Online',this)">Online</div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
     <table class="data-table">
-      <thead><tr><th>Member</th><th>Membership type</th><th>Amount overdue</th><th>Days overdue</th><th>Status</th></tr></thead>
-      <tbody>
-        <tr><td>David K.</td><td>Perf Prime II</td><td>$89.00</td><td>12 days</td><td><span class="badge badge-danger">Failed DD</span></td></tr>
-        <tr><td>Anika S.</td><td>Perf Core</td><td>$49.00</td><td>8 days</td><td><span class="badge badge-danger">Failed DD</span></td></tr>
-        <tr><td>Lee T.</td><td>Perf Plus</td><td>$69.00</td><td>21 days</td><td><span class="badge badge-danger">Overdue</span></td></tr>
-        <tr><td>Rachel B.</td><td>Community</td><td>$35.00</td><td>5 days</td><td><span class="badge badge-hold">Pending</span></td></tr>
-        <tr><td>Chris M.</td><td>Perf Prime III</td><td>$119.00</td><td>14 days</td><td><span class="badge badge-danger">Failed DD</span></td></tr>
-      </tbody>
+      <thead>
+        <tr>
+          <th style="padding:12px 16px">Keyword</th>
+          <th>Brand</th>
+          <th>Position</th>
+          <th>Change</th>
+          <th>Volume</th>
+          <th>Page</th>
+        </tr>
+      </thead>
+      <tbody id="seo-tbody"></tbody>
     </table>
   </div>
-  <div class="section-label">Upcoming renewals this week</div>
-  <div class="card">
-    <table class="data-table">
-      <thead><tr><th>Member</th><th>Membership type</th><th>Renewal amount</th><th>Renewal date</th><th>Status</th></tr></thead>
-      <tbody>
-        <tr><td>Mia J.</td><td>Perf Prime III — annual</td><td>$1,188.00</td><td>30 Mar 2026</td><td><span class="badge badge-active">Auto-renews</span></td></tr>
-        <tr><td>Ben A.</td><td>Perf Core — annual</td><td>$588.00</td><td>31 Mar 2026</td><td><span class="badge badge-hold">Confirm needed</span></td></tr>
-        <tr><td>Tara W.</td><td>Community — annual</td><td>$420.00</td><td>1 Apr 2026</td><td><span class="badge badge-active">Auto-renews</span></td></tr>
-        <tr><td>Jay P.</td><td>Perf Plus — annual</td><td>$828.00</td><td>2 Apr 2026</td><td><span class="badge badge-hold">Confirm needed</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
 </div>
 
-<!-- CANCELLATIONS -->
-<div class="page" id="page-cancellations">
-  <div class="section-label">Cancellations & holds</div>
-  <div class="metrics">
-    <div class="metric danger"><div class="metric-label">Cancellations this month</div><div class="metric-value">18</div><div class="metric-sub down">↑ +3 vs last month</div></div>
-    <div class="metric"><div class="metric-label">Cancellations YTD</div><div class="metric-value">97</div></div>
-    <div class="metric warn"><div class="metric-label">Active holds</div><div class="metric-value">23</div></div>
-    <div class="metric info"><div class="metric-label">Avg. tenure at cancel</div><div class="metric-value">9 <span>mo</span></div></div>
+<!-- ── EMAIL ── -->
+<div class="page" id="page-email">
+  <div class="section-label">Email — 6-month trends</div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">Open rate trend</div>
+      <div class="card-sub">HQ vs Online — last 6 months</div>
+      <div style="position:relative;height:200px"><canvas id="c-email-open"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">List size</div>
+      <div class="card-sub">HQ vs Online — last 6 months</div>
+      <div style="position:relative;height:200px"><canvas id="c-email-list"></canvas></div>
+    </div>
   </div>
+  <div class="section-label">Last campaigns</div>
   <div class="grid2">
-    <div class="card">
-      <div class="card-title">Cancellations by month</div>
-      <div class="card-sub">2025 — 2026</div>
-      <div style="position:relative;height:200px;"><canvas id="c-canceltrend"></canvas></div>
+    <div class="card" id="email-card-hq"></div>
+    <div class="card" id="email-card-online"></div>
+  </div>
+</div>
+
+<!-- ── ADS ── -->
+<div class="page" id="page-ads">
+  <div class="section-label">Paid ads — Meta (30 days)</div>
+  <div class="metrics" style="margin-bottom:1.5rem">
+    <div class="metric warn">
+      <div class="metric-label">Total spend</div>
+      <div class="metric-value" id="ads-spend">—</div>
+      <div class="metric-sub">30-day</div>
     </div>
-    <div class="card">
-      <div class="card-title">Cancellation reasons</div>
-      <div class="card-sub">All time breakdown</div>
-      <div class="bar-row"><span class="bar-label">Too expensive</span><div class="bar-bg"><div class="bar-fill" style="width:72%;background:#c0392b"></div></div><span class="bar-val">32%</span></div>
-      <div class="bar-row"><span class="bar-label">Not using it</span><div class="bar-bg"><div class="bar-fill" style="width:55%;background:#c0392b"></div></div><span class="bar-val">24%</span></div>
-      <div class="bar-row"><span class="bar-label">Moved away</span><div class="bar-bg"><div class="bar-fill" style="width:38%;background:#c0392b"></div></div><span class="bar-val">17%</span></div>
-      <div class="bar-row"><span class="bar-label">Injury / health</span><div class="bar-bg"><div class="bar-fill" style="width:28%;background:#c0392b"></div></div><span class="bar-val">12%</span></div>
-      <div class="bar-row"><span class="bar-label">Another gym</span><div class="bar-bg"><div class="bar-fill" style="width:18%;background:#c0392b"></div></div><span class="bar-val">8%</span></div>
-      <div class="bar-row"><span class="bar-label">Other</span><div class="bar-bg"><div class="bar-fill" style="width:14%;background:#c0392b"></div></div><span class="bar-val">7%</span></div>
+    <div class="metric">
+      <div class="metric-label">Total reach</div>
+      <div class="metric-value" id="ads-reach">—</div>
+      <div class="metric-sub">Unique people</div>
+    </div>
+    <div class="metric success">
+      <div class="metric-label">Leads generated</div>
+      <div class="metric-value" id="ads-leads">—</div>
+      <div class="metric-sub">30-day</div>
+    </div>
+    <div class="metric info">
+      <div class="metric-label">Cost per lead</div>
+      <div class="metric-value" id="ads-cpl">—</div>
+      <div class="metric-sub">Avg. CPL</div>
+    </div>
+    <div class="metric success">
+      <div class="metric-label">ROAS</div>
+      <div class="metric-value" id="ads-roas">—</div>
+      <div class="metric-sub">Return on ad spend</div>
     </div>
   </div>
-  <div class="section-label">Cancellations by membership type</div>
-  <div class="card">
-    <div style="position:relative;height:220px;"><canvas id="c-canceltype"></canvas></div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:1.25rem 1.5rem 0.75rem">
+        <div class="card-title">Campaign performance</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="padding:8px 16px">Campaign</th><th>Spend</th><th>Leads</th><th>CPL</th></tr></thead>
+        <tbody id="ads-campaigns"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Daily ad spend (30 days)</div>
+      <div style="position:relative;height:185px;margin-top:12px"><canvas id="c-ads-spend"></canvas></div>
+    </div>
   </div>
-  <div class="sample-notice">⚡ Showing sample data — real GymMaster data will appear once API is connected</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:1.25rem 1.5rem 0.75rem">
+      <div class="card-title">Creative performance</div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th style="padding:8px 16px">Creative</th><th>Format</th><th>Impressions</th><th>CTR</th><th>Leads</th><th>CPL</th></tr></thead>
+      <tbody id="ads-creatives"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── BOOKINGS ── -->
+<div class="page" id="page-bookings">
+  <div class="section-label">Bookings & appointments — Halaxy (30 days)</div>
+  <div class="metrics" style="margin-bottom:1.5rem">
+    <div class="metric success">
+      <div class="metric-label">Total appointments</div>
+      <div class="metric-value" id="bk-total">—</div>
+      <div class="metric-sub">30-day</div>
+    </div>
+    <div class="metric info">
+      <div class="metric-label">New patients</div>
+      <div class="metric-value" id="bk-new">—</div>
+      <div class="metric-sub">30-day</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Returning patients</div>
+      <div class="metric-value" id="bk-returning">—</div>
+      <div class="metric-sub">30-day</div>
+    </div>
+    <div class="metric warn">
+      <div class="metric-label">Cancellation rate</div>
+      <div class="metric-value" id="bk-cancel">—</div>
+      <div class="metric-sub">30-day</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Avg. lead time</div>
+      <div class="metric-value" id="bk-leadtime">—</div>
+      <div class="metric-sub">Days to appointment</div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">Booking sources</div>
+      <div class="card-sub">Where patients come from</div>
+      <div style="position:relative;height:220px"><canvas id="c-bk-sources"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Daily appointments (30 days)</div>
+      <div style="position:relative;height:220px"><canvas id="c-bk-daily"></canvas></div>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:1.25rem 1.5rem 0.75rem"><div class="card-title">Appointment types</div></div>
+    <table class="data-table">
+      <thead><tr><th style="padding:8px 16px">Type</th><th>Count (30d)</th></tr></thead>
+      <tbody id="bk-types"></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-// NAV
+// ── Defaults ───────────────────────────────────────────────────────────────
+Chart.defaults.color = '#6b7a9e';
+Chart.defaults.borderColor = 'rgba(15,35,80,0.08)';
+const FONT = { size: 11, family: 'DM Mono' };
+const NAVY = '#0f2350', BLUE = '#2a52a0', RED = '#c0392b', AMBER = '#d4820a';
+
+// ── Navigation ─────────────────────────────────────────────────────────────
 function showPage(name, tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   tab.classList.add('active');
-
-  if (name === 'classes') loadClassSchedule();
-    if (name === 'members') loadMembersTab();}
-
-
-// CHARTS — all built on window load so canvas sizes are known
-Chart.defaults.color = '#6b7a9e';
-Chart.defaults.borderColor = 'rgba(15,35,80,0.08)';
-
-function buildCharts() {
-  var navy = '#0f2350', blue = '#2a52a0', light = '#b5c4e0', red = '#c0392b', muted = '#6b7a9e';
-  var tickFont = { size: 11, family: 'DM Mono' };
-
-  window._charts = window._charts || {};
-  window._charts.signup = new Chart(document.getElementById('c-signup'), {
-    type:'bar',
-    data:{
-      labels:['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26'],
-      datasets:[
-        {label:'Sign-ups', data:[15,12,15,13,20,8,22,15,15,20,13,11,8,12,17], backgroundColor:navy, borderRadius:4, borderSkipped:false},
-        {label:'Cancellations', data:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], backgroundColor:red, borderRadius:4, borderSkipped:false}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:8}}},scales:{x:{grid:{display:false},ticks:{font:tickFont,maxRotation:45}},y:{ticks:{font:tickFont}}}}
-  });
-
-  window._charts.churn = new Chart(document.getElementById('c-retention'), {
-    type:'line',
-    data:{
-      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
-      datasets:[{label:'Churn %', data:[2.1,1.8,2.4,1.6,2.0,2.8,1.9,1.5,1.3,1.7,2.0,1.6], borderColor:red, backgroundColor:'rgba(192,57,43,0.07)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:red, pointBorderColor:'transparent'}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{min:0,max:6,ticks:{font:tickFont,callback:function(v){return v+'%'}}}}}
-  });
-
-  new Chart(document.getElementById('c-bookings'), {
-    type:'bar',
-    data:{
-      labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],
-      datasets:[
-        {label:'Bookings', data:[312,298,341,289,367,321,298,344], backgroundColor:blue, borderRadius:4, borderSkipped:false},
-        {label:'No-shows', data:[28,34,22,41,19,38,31,25], backgroundColor:light, borderRadius:4, borderSkipped:false}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
-  });
-
-  new Chart(document.getElementById('c-revtype'), {
-    type:'doughnut',
-    data:{
-      labels:['Perf Core','Perf Plus','Perf Prime II','Perf Prime III','Community','Recovery'],
-      datasets:[{data:[15778,13807,12124,8277,2618,676], backgroundColor:[navy,blue,'#4a72c0','#7a9ed5',light,'#d5dff0'], borderWidth:0, hoverOffset:4}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:tickFont,boxWidth:10,padding:10}}},cutout:'62%'}
-  });
-
-  new Chart(document.getElementById('c-revtrend'), {
-    type:'line',
-    data:{
-      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
-      datasets:[{label:'Revenue', data:[36200,38100,35800,41200,39800,37600,40100,42300,38900,39400,38200,41280], borderColor:navy, backgroundColor:'rgba(15,35,80,0.06)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:navy, pointBorderColor:'transparent'}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont,callback:function(v){return '$'+v.toLocaleString()}}}}}
-  });
-
-  new Chart(document.getElementById('c-canceltrend'), {
-    type:'bar',
-    data:{
-      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
-      datasets:[{label:'Cancellations', data:[12,9,14,11,16,8,13,10,12,15,11,18], backgroundColor:red, borderRadius:5, borderSkipped:false}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
-  });
-
-  new Chart(document.getElementById('c-canceltype'), {
-    type:'bar',
-    data:{
-      labels:['Perf Core','Perf Plus','Perf Prime II','Community','Perf Prime III','Recovery'],
-      datasets:[{label:'Cancellations', data:[34,28,16,12,5,2], backgroundColor:red, borderRadius:5, borderSkipped:false}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{grid:{display:false},ticks:{font:tickFont}}}}
-  });
 }
 
-window.addEventListener('load', buildCharts);
-</script>
+// ── Data loading ───────────────────────────────────────────────────────────
+let D = null;
 
-</body>
-</html>
-<script>
-// LIVE DATA — fetch from GymMaster via Netlify function
-function mapMemberName(name) {
-  const n = (name || '').toLowerCase();
-  if (n.includes('24/7') || n.includes('gym access')) return 'Gym Access 24/7';
-  if (n.includes('perf prime')) return 'Perf Prime';
-  if (n.includes('perf plus')) return 'Perf Plus';
-  if (n.includes('perf core')) return 'Perf Core';
-  if (n.includes('plus online') || (n.includes('online') && !n.includes('perf base'))) return 'Plus Online';
-  if (n.includes('community') || n.includes('class pass')) return 'Community';
-  if (n.includes('s&c') || n.includes('hq open') || n.includes('perform s')) return 'S&C Open Session';
-  if (n.includes('perf base') || n.includes('base')) return 'Perf Base';
-  return name || 'Other';
-}
-
-async function loadLiveData() {
+async function loadDashboard() {
   try {
-    const membersRes = await fetch('/.netlify/functions/gymmaster?type=members');
-    const membersData = await membersRes.json();
-
-    if (membersData && membersData.members) {
-      const all = membersData.members;
-      const active = all.filter(m => m.status === 'active');
-      const holds = all.filter(m => m.status === 'hold');
-      const today = new Date();
-      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      const el = id => document.getElementById(id);
-
-      // OVERVIEW STATS
-      if (el('stat-active')) el('stat-active').textContent = active.length;
-      if (el('stat-hold')) el('stat-hold').textContent = holds.length;
-
-      const yr = today.getFullYear(), mo = today.getMonth();
-      const mtd = all.filter(m => { if (!m.join_date) return false; const d = new Date(m.join_date); return d.getFullYear()===yr && d.getMonth()===mo; });
-      if (el('stat-signups-mtd')) el('stat-signups-mtd').textContent = mtd.length;
-      if (el('stat-month-label')) el('stat-month-label').textContent = monthNames[mo] + ' ' + yr;
-
-      const lifetimes = active.filter(m => m.join_date).map(m => (today - new Date(m.join_date)) / (1000*60*60*24*30.44));
-      const avgLT = lifetimes.length ? Math.round(lifetimes.reduce((a,b)=>a+b,0)/lifetimes.length) : 0;
-      if (el('stat-lifetime')) el('stat-lifetime').innerHTML = avgLT + ' <span>mo</span>';
-
-      const totalCurrent = active.length + holds.length;
-      const retention = totalCurrent > 0 ? Math.round((active.length / totalCurrent) * 100) : 0;
-      if (el('stat-retention')) el('stat-retention').innerHTML = retention + ' <span>%</span>';
-      if (el('stat-retention-sub')) el('stat-retention-sub').textContent = active.length + ' active of ' + totalCurrent + ' current';
-
-      // SIGN-UPS CHART: update with real monthly data
-      const signupsByMonth = {}, cancelsByMonth = {};
-      all.forEach(m => { if (!m.join_date) return; const k = m.join_date.substring(0,7); signupsByMonth[k]=(signupsByMonth[k]||0)+1; });
-      all.filter(m=>m.cancel_date).forEach(m => { const k=m.cancel_date.substring(0,7); cancelsByMonth[k]=(cancelsByMonth[k]||0)+1; });
-
-      // Build 15-month continuous timeline: Jan 2025 → current month 2026
-      const pad = i => String(i+1).padStart(2,'0');
-      const allMonths = [
-        ...Array.from({length:12},(_,i)=>'2025-'+pad(i)),
-        ...Array.from({length:12},(_,i)=>'2026-'+pad(i)).filter(k => k <= (today.getFullYear()+'-'+pad(today.getMonth())))
-      ];
-      if (window._charts && window._charts.signup) {
-        const ds = window._charts.signup.data.datasets;
-        ds[0].data = allMonths.map(k => signupsByMonth[k]||0);
-        ds[1].data = allMonths.map(k => cancelsByMonth[k]||0);
-        window._charts.signup.data.labels = allMonths.map(k => {
-          const [y,m] = k.split('-');
-          const mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1];
-          return mon + ' ' + y.slice(2);
-        });
-        window._charts.signup.update();
-      }
-
-      // MEMBERSHIP TYPE BREAKDOWN
-      const typeCount = {};
-      active.forEach(m => { const n = mapMemberName(m.membership_name); typeCount[n]=(typeCount[n]||0)+1; });
-      const total = active.length || 1;
-      // Update 8 live membership type slots (real GymMaster types)
-      const TYPES = [
-        {name:'Gym Access 24/7', id:'t1', color:'#0f2350'},
-        {name:'Perf Base', id:'t2', color:'#2a52a0'},
-        {name:'Perf Core', id:'t3', color:'#4a72c0'},
-        {name:'Perf Plus', id:'t4', color:'#5e88c5'},
-        {name:'Perf Prime', id:'t5', color:'#7a9ed5'},
-        {name:'Plus Online', id:'t6', color:'#8aadd8'},
-        {name:'Community', id:'t7', color:'#aac4e0'},
-        {name:'S&C Open Session', id:'t8', color:'#cdd9ec'}
-      ];
-      TYPES.forEach(t => {
-        const count = typeCount[t.name] || 0;
-        const pct = total > 0 ? Math.round(count/total*100) : 0;
-        const bar = document.getElementById('bar-'+t.id);
-        const cnt = document.getElementById('count-'+t.id);
-        const pctEl = document.getElementById('pct-'+t.id);
-        if (bar) bar.style.width = Math.max(pct, count > 0 ? 1 : 0) + '%';
-        if (cnt) cnt.textContent = count;
-        if (pctEl) pctEl.textContent = pct + '%';
-      });
-
-      // AT-RISK ALERTS
-      const atRisk = active.filter(m => { if (!m.last_visit) return false; return (today-new Date(m.last_visit))/(1000*60*60*24)>14; });
-      if (atRisk.length > 0) {
-        const hdr = document.querySelector('.alert-header');
-        const grid = document.querySelector('.alert-grid');
-        if (hdr) hdr.innerHTML = '⚠ At-risk members — no visit in 14+ days (' + atRisk.length + ' members)';
-        if (grid) grid.innerHTML = atRisk.slice(0,6).map(m => {
-          const days = Math.floor((today-new Date(m.last_visit))/(1000*60*60*24));
-          return '<div class="alert-card"><div><div class="alert-name">'+m.firstname+' '+m.lastname+'</div><div class="alert-detail">'+mapMemberName(m.membership_name)+'</div></div><div class="alert-days">'+days+' days</div></div>';
-        }).join('');
-      }
-
-      // MEMBER TABLE
-      const tableMembers = all.slice(0,100).map(m => ({
-        name:(m.firstname||'')+' '+(m.lastname||''), type:mapMemberName(m.membership_name),
-        status:m.status, statusLabel:m.status||'unknown',
-        joined:m.join_date ? new Date(m.join_date).toLocaleDateString('en-AU',{month:'short',year:'numeric'}) : '—',
-        lastVisit:m.last_visit ? new Date(m.last_visit).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Never',
-        visits:m.visit_count||0
-      }));
-      renderMembers(tableMembers);
-
-      const badge = document.querySelector('.live-badge');
-      if (badge) badge.innerHTML = '<div class="live-dot"></div>LIVE DATA';
-    }
-  } catch(err) { console.log('Showing sample data:', err.message); }
-}
-// Preserve bar values — API has no membership type per member
-const _origLLD = loadLiveData;
-loadLiveData = async function() {
-  const bs = {};
-  for (let i=1;i<=8;i++) {
-    const b=document.getElementById('bar-t'+i), p=document.getElementById('pct-t'+i);
-    bs[i] = {w: b ? b.style.width : '', pt: p ? p.textContent : ''};
+    const res = await fetch('/data/dashboard-data.json');
+    D = await res.json();
+    renderAll();
+  } catch (e) {
+    document.getElementById('last-updated').textContent = 'Failed to load data';
+    console.error('Dashboard load failed:', e);
   }
-  await _origLLD();
-  const allZero = [1,2,3,4,5,6,7,8].every(function(i) {
-    const b = document.getElementById('bar-t'+i);
-    return !b || !b.style.width || b.style.width === '0%';
-  });
-  if (allZero) {
-    for (let i=1;i<=8;i++) {
-      const b=document.getElementById('bar-t'+i), p=document.getElementById('pct-t'+i);
-      if (b) b.style.width = bs[i].w;
-      if (p) p.textContent = bs[i].pt;
-    }
-  }
-};
-// Show only active/hold members, sorted by most recent join date
-const _origRM = renderMembers;
-renderMembers = function(data) {
-  _origRM(
-    data.filter(function(m){ return m.status === 'active' || m.status === 'hold'; })
-        .sort(function(a,b){ return new Date(b.join_date||0) - new Date(a.join_date||0); })
-        .slice(0, 200)
-  );
-};
+}
 
-// ── Live Membership Counts (webhook-updated Netlify Blobs) ──
-
-// ── CLASS SCHEDULE ─────────────────────────────────────────────
-const CLASS_COLORS={'Perform Strong':'#1e40af','Perform S&C':'#065f46','Restore & Perform':'#7c3aed','Master the Movement':'#b45309','Stronger for Longer':'#be185d','Beat It':'#dc2626','Core Collective':'#0369a1','Boxing':'#374151'};
-const TIMETABLE={
-  am:[
-    {time:'05:15',Mon:{n:'Perform Strong (Lower)',b:0,c:12},Tue:{n:'Perform Strong (Upper)',b:0,c:12},Wed:{n:'Restore & Perform',b:0,c:12},Thu:{n:'Perform Strong (Lower)',b:0,c:12},Fri:{n:'Perform Strong (Lower)',b:0,c:12},Sat:null},
-    {time:'06:15',Mon:{n:'Perform S&C',b:0,c:12},Tue:{n:'Master the Movement',b:0,c:12},Wed:{n:'Stronger for Longer',b:0,c:12},Thu:{n:'Perform S&C',b:0,c:12},Fri:{n:'Perform Strong (Upper)',b:0,c:12},Sat:{n:'Perform S&C',b:0,c:12}},
-    {time:'07:00',Mon:null,Tue:null,Wed:null,Thu:null,Fri:null,Sat:{n:'Boxing',b:0,c:10}},
-    {time:'09:00',Mon:null,Tue:null,Wed:null,Thu:{n:'Stronger for Longer',b:0,c:12},Fri:null,Sat:null},
-    {time:'10:00',Mon:{n:'Stronger for Longer',b:0,c:12},Tue:null,Wed:null,Thu:null,Fri:null,Sat:null},
-    {time:'11:00',Mon:null,Tue:{n:'Beat It',b:0,c:15},Wed:null,Thu:{n:'Beat It',b:0,c:15},Fri:null,Sat:null}
-  ],
-  pm:[
-    {time:'12:00',Mon:null,Tue:{n:'Core Collective',b:0,c:12},Wed:null,Thu:null,Fri:null,Sat:{n:'Core Collective',b:0,c:12}},
-    {time:'17:00',Mon:{n:'Perform S&C',b:0,c:12},Tue:{n:'Perform S&C',b:0,c:12},Wed:{n:'Restore & Perform',b:0,c:12},Thu:{n:'Perform S&C',b:0,c:12},Fri:null,Sat:null},
-    {time:'18:00',Mon:{n:'Perform Strong (Lower)',b:0,c:12},Tue:{n:'Perform Strong (Upper)',b:0,c:12},Wed:{n:'Master the Movement',b:0,c:12},Thu:{n:'Perform Strong (Lower)',b:0,c:12},Fri:null,Sat:null}
-  ]
-};
-function getClassColor(n){for(const[k,c] of Object.entries(CLASS_COLORS)){const p=k.split(' ');if(n&&p.every(w=>n.includes(w)))return c;}return '#374151';}
-function getGymMasterWeekUrl() {
-  const today = new Date();
-  const mon = new Date(today);
-  mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-  const d = mon.toISOString().split('T')[0];
-  return `https://performotion.gymmasteronline.com/booking/schedule?asat=${d}&view=week&rid=520521`;
-}
-function makeCell(s, day, time){
-  if(!s)return '<td style="padding:8px;border-bottom:1px solid #f0f1f3"></td>';
-  const col=getClassColor(s.n);
-  const sh=s.n.replace('Perform Strong','Perf Strong').replace('Stronger for Longer','Stronger 4 Lngr').replace('Master the Movement','Master Mvmt').replace('Core Collective','Core Coll').replace('Restore & Perform','Restore & Perf').replace('Perform S&C','Perf S&C');
-  const url = getGymMasterWeekUrl();
-  return `<td style="padding:8px;border-bottom:1px solid #f0f1f3;vertical-align:top"><a href="${url}" target="_blank" style="text-decoration:none;display:block;background:${col}18;border-left:3px solid ${col};padding:6px 8px;border-radius:4px;min-width:88px" title="View in GymMaster"><div style="font-size:.7rem;font-weight:600;color:${col};line-height:1.3;margin-bottom:2px">${sh}</div><div style="font-size:.62rem;color:#6b7280">View bookings →</div></a></td>`;
-}
-function renderClasses(){
-  const days=['Mon','Tue','Wed','Thu','Fri','Sat'];
-  ['am','pm'].forEach(p=>{
-    const tb=document.getElementById('cls-'+p+'-body');
-    if(!tb)return;
-    tb.innerHTML=TIMETABLE[p].map(row=>'<tr><td style="padding:8px 14px;font-size:.75rem;font-weight:600;color:#374151;border-bottom:1px solid #f0f1f3;white-space:nowrap">'+row.time+'</td>'+days.map(d=>makeCell(row[d],d,row.time)).join('')+'</tr>').join('');
-  });
-  const $=id=>document.getElementById(id);
-  if($('cls-bookings'))$('cls-bookings').textContent='—';
-  if($('cls-fill'))$('cls-fill').textContent='—';
-  if($('cls-popular'))$('cls-popular').textContent='Perform S&C';
-}
-let _classScheduleLoaded = false;
-async function loadClassSchedule() {
-  renderClasses();
-  if (_classScheduleLoaded) return;
+async function refreshDashboard() {
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '↻ Refreshing…';
   try {
-    const res = await fetch('/.netlify/functions/gymmaster?type=class-schedule');
-    const data = await res.json();
-    if (!data.sessions || !data.sessions.length) return;
-    // Build lookup: "Day|HH:MM" -> {bookings, capacity}
-    const lookup = {};
-    data.sessions.forEach(s => {
-      const key = s.day + '|' + s.time;
-      if (!lookup[key]) lookup[key] = { b: 0, c: s.capacity };
-      lookup[key].b += s.bookings;
-      if (s.capacity > lookup[key].c) lookup[key].c = s.capacity;
+    const res = await fetch('/.netlify/functions/update-dashboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
     });
-    // Merge live bookings into TIMETABLE
-    [...TIMETABLE.am, ...TIMETABLE.pm].forEach(row => {
-      ['Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day => {
-        if (!row[day]) return;
-        const key = day + '|' + row.time;
-        if (lookup[key]) {
-          row[day].b = lookup[key].b;
-          row[day].c = lookup[key].c || row[day].c;
-        }
-      });
-    });
-    _classScheduleLoaded = true;
-    renderClasses();
-  } catch(e) { /* static timetable stays rendered */ }
-}
-
-// ---- MEMBERS TAB ----
-let _allMembersCache = null;
-
-function loadMembersTab() {
-  if (_allMembersCache) { renderMemberResults(''); return; }
-  document.getElementById('mem-status').textContent = 'Loading members…';
-  fetch('/.netlify/functions/gymmaster?type=members')
-    .then(r => r.json())
-    .then(data => {
-      _allMembersCache = (data.members || []).filter(m => m.status === 'active' || m.status === 'hold');
-      const now = new Date(), monthAgo = new Date(now - 30*24*60*60*1000);
-      const active = _allMembersCache.filter(m => m.status === 'active');
-      const hold = _allMembersCache.filter(m => m.status === 'hold');
-      const atRisk = active.filter(m => !m.last_visit || (now - new Date(m.last_visit)) > 14*24*60*60*1000);
-      const newM = active.filter(m => m.join_date && new Date(m.join_date) >= monthAgo);
-      document.getElementById('mem-active').textContent = active.length;
-      document.getElementById('mem-hold').textContent = hold.length;
-      document.getElementById('mem-atrisk').textContent = atRisk.length;
-      document.getElementById('mem-new').textContent = newM.length;
-      document.getElementById('mem-status').textContent = _allMembersCache.length + ' members loaded — type a name to search';
-      renderMemberResults('');
-    })
-    .catch(() => { document.getElementById('mem-status').textContent = 'Failed to load members — check Netlify API key'; });
-}
-
-function filterMembers() {
-  const q = document.getElementById('mem-search').value;
-  renderMemberResults(q);
-}
-
-function renderMemberResults(query) {
-  const q = query.trim().toLowerCase();
-  const members = _allMembersCache || [];
-  const filtered = q ? members.filter(m => (m.firstname + ' ' + m.lastname).toLowerCase().includes(q)) : members;
-  const now = new Date();
-  const container = document.getElementById('mem-results');
-
-  if (!q) {
-    container.innerHTML = '';
-    return;
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const live = await res.json();
+    // Keep mock data as base; overlay live data where APIs connected
+    D = mergeLiveData(D, live);
+    renderAll();
+  } catch (e) {
+    console.error('Refresh failed:', e);
+    document.getElementById('last-updated').textContent = 'Refresh failed — check API keys in Netlify';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↻ Refresh';
   }
-  if (!filtered.length) {
-    container.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:13px">No members found</div>';
-    return;
-  }
+}
 
-  container.innerHTML = filtered.slice(0, 50).map(m => {
-    const jd = m.join_date ? new Date(m.join_date) : null;
-    const months = jd ? Math.floor((now - jd) / (1000*60*60*24*30)) : 0;
-    const ltv = '$' + (months * 60).toLocaleString();
-    const sc = m.status === 'active' ? 'var(--success)' : 'var(--warn)';
-    const outstanding = m.overdue_amount ? '<span style="color:var(--danger);font-weight:600">$' + m.overdue_amount + ' outstanding</span>' : '<span style="color:var(--muted)">No outstanding fees</span>';
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">
-      <div>
-        <div style="font-size:14px;font-weight:600;color:var(--text)">${m.firstname} ${m.lastname}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${m.membership_name || '—'} &nbsp;·&nbsp; <span style="color:${sc}">${m.status}</span></div>
-      </div>
-      <div style="display:flex;gap:24px;flex-wrap:wrap">
-        <div style="text-align:right">
-          <div style="font-size:11px;color:var(--muted)">Lifetime value</div>
-          <div style="font-size:14px;font-weight:600;color:var(--text)">${ltv}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:11px;color:var(--muted)">Outstanding fees</div>
-          <div style="font-size:13px">${outstanding}</div>
-        </div>
-      </div>
-    </div>`;
+function mergeLiveData(base, live) {
+  // Overlay live API data onto the display shape where sources are connected
+  const out = JSON.parse(JSON.stringify(base || {}));
+  out.lastUpdated = live.lastUpdated || out.lastUpdated;
+  out.healthScores = live.healthScores || out.healthScores;
+  if (live.ga4 && live.ga4.dataSource !== 'error') out.ga4 = live.ga4;
+  // Individual API overlays can be extended here as they connect
+  return out;
+}
+
+// ── Render all tabs ────────────────────────────────────────────────────────
+function renderAll() {
+  if (!D) return;
+  renderTimestamp();
+  renderOverview();
+  renderHq();
+  renderOnline();
+  renderSeo('all');
+  renderEmail();
+  renderAds();
+  renderBookings();
+}
+
+function renderTimestamp() {
+  const el = document.getElementById('last-updated');
+  if (!D.lastUpdated) return;
+  const d = new Date(D.lastUpdated);
+  el.textContent = 'Updated ' + d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
+    + ' ' + d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+}
+
+// ── Overview ───────────────────────────────────────────────────────────────
+function renderOverview() {
+  const s = D.healthScores || {};
+  setHealthScore('overall', s.overall || 0);
+  setHealthScore('hq', s.hq || 0);
+  setHealthScore('online', s.online || 0);
+
+  const hqIg = D.hq?.instagram || {};
+  const onIg = D.online?.instagram || {};
+  const yt = D.online?.youtube || {};
+  const bk = D.bookings || {};
+  const hqEm = D.hq?.email || {};
+  const onEm = D.online?.email || {};
+  const ads = D.ads || {};
+  const ga4 = D.ga4 || {};
+
+  txt('ov-hq-reach', bigNum(hqIg.reach7d));
+  txt('ov-hq-reach-sub', signPct(hqIg.reach7dWoWPct) + ' WoW · 7-day');
+  txt('ov-on-reach', bigNum(onIg.reach7d));
+  txt('ov-on-reach-sub', signPct(onIg.reach7dWoWPct) + ' WoW · 7-day');
+  txt('ov-yt-views', bigNum(yt.views7d));
+  txt('ov-bookings', bk.totalAppointments30d ?? '—');
+  txt('ov-new-patients', (bk.newPatients30d ?? '—') + ' new patients');
+  const totalSubs = (hqEm.totalSubscribers || 0) + (onEm.totalSubscribers || 0);
+  txt('ov-email-total', bigNum(totalSubs));
+  txt('ov-email-sub', bigNum(hqEm.totalSubscribers) + ' HQ · ' + bigNum(onEm.totalSubscribers) + ' Online');
+  txt('ov-ad-spend', ads.totalSpend30d != null ? '$' + ads.totalSpend30d.toLocaleString() : '—');
+  txt('ov-ad-cpl', ads.overallCPL ? 'CPL $' + ads.overallCPL : '');
+  txt('ov-sessions', bigNum(ga4.sessions30d));
+  txt('ov-bk-clicks', ga4.bookingClicks30d ?? '—');
+}
+
+function setHealthScore(key, val) {
+  txt('score-' + key, val);
+  const bar = document.getElementById('hbar-' + key);
+  if (!bar) return;
+  bar.style.width = val + '%';
+  bar.style.background = val >= 75 ? '#1a7a4a' : val >= 50 ? '#2a52a0' : '#d4820a';
+}
+
+// ── HQ ─────────────────────────────────────────────────────────────────────
+function renderHq() {
+  const ig = D.hq?.instagram || {};
+  const fb = D.hq?.facebook || {};
+  const em = D.hq?.email || {};
+
+  document.getElementById('hq-ig-stats').innerHTML = rows([
+    ['Handle', ig.handle],
+    ['Followers', ig.followers ? bigNum(ig.followers) + ' (' + signPct(ig.followersGrowthPct) + ' mo)' : null],
+    ['Reach 7d', ig.reach7d ? bigNum(ig.reach7d) + ' (' + signPct(ig.reach7dWoWPct) + ' WoW)' : null],
+    ['Engagement', ig.engagementRate ? ig.engagementRate + '%' : null],
+    ['Posts/week', ig.postFrequency],
+    ['Content focus', ig.contentFocus],
+  ]);
+
+  document.getElementById('hq-fb-stats').innerHTML = rows([
+    ['Page', fb.pageName],
+    ['Followers', fb.followers ? bigNum(fb.followers) + ' (' + signPct(fb.followersGrowthPct) + ' mo)' : null],
+    ['Reach 7d', fb.reach7d ? bigNum(fb.reach7d) + ' (' + signPct(fb.reach7dWoWPct) + ' WoW)' : null],
+    ['Engagement', fb.engagementRate ? fb.engagementRate + '%' : null],
+    ['Posts/week', fb.postFrequency],
+  ]);
+
+  document.getElementById('hq-email-stats').innerHTML = rows([
+    ['List', em.listName],
+    ['Active subs', em.activeSubscribers ? em.activeSubscribers.toLocaleString() : null],
+    ['New this month', em.newThisMonth != null ? '+' + em.newThisMonth : null],
+    ['Open rate', em.avgOpenRate ? em.avgOpenRate + '%' : null],
+    ['Click rate', em.avgClickRate ? em.avgClickRate + '%' : null],
+    ['Unsub rate', em.avgUnsubRate ? em.avgUnsubRate + '%' : null],
+  ]);
+
+  sparkline('spark-hq-ig', ig.sparkline14d || [], NAVY);
+
+  const reach = D.hq?.dailyReach30d || {};
+  const days30 = last30DayLabels();
+  chart('c-hq-reach', 'line', days30, [
+    { label: 'Instagram', data: reach.instagram || [], borderColor: NAVY, backgroundColor: NAVY + '0f', fill: true, tension: 0.4, pointRadius: 0 },
+    { label: 'Facebook', data: reach.facebook || [], borderColor: BLUE, backgroundColor: BLUE + '0d', fill: true, tension: 0.4, pointRadius: 0 },
+  ]);
+}
+
+// ── Online ─────────────────────────────────────────────────────────────────
+function renderOnline() {
+  const ig = D.online?.instagram || {};
+  const yt = D.online?.youtube || {};
+  const em = D.online?.email || {};
+
+  document.getElementById('on-ig-stats').innerHTML = rows([
+    ['Handle', ig.handle],
+    ['Followers', ig.followers ? bigNum(ig.followers) + ' (' + signPct(ig.followersGrowthPct) + ' mo)' : null],
+    ['Reach 7d', ig.reach7d ? bigNum(ig.reach7d) + ' (' + signPct(ig.reach7dWoWPct) + ' WoW)' : null],
+    ['Engagement', ig.engagementRate ? ig.engagementRate + '%' : null],
+    ['Posts/week', ig.postFrequency],
+    ['Content focus', ig.contentFocus],
+  ]);
+
+  document.getElementById('on-yt-stats').innerHTML = rows([
+    ['Channel', yt.channelName],
+    ['Subscribers', yt.subscribers ? bigNum(yt.subscribers) + ' (' + signPct(yt.subscribersGrowthPct) + ' mo)' : null],
+    ['Views 7d', yt.views7d ? bigNum(yt.views7d) + ' (' + signPct(yt.views7dWoWPct) + ' WoW)' : null],
+    ['Watch time 7d', yt.watchTimeMinutes ? Math.round(yt.watchTimeMinutes / 60).toLocaleString() + ' hrs' : null],
+    ['Subs gained 7d', yt.subsGained7d != null ? '+' + yt.subsGained7d : null],
+    ['Top video', yt.topVideo?.title],
+  ]);
+
+  document.getElementById('on-email-stats').innerHTML = rows([
+    ['List', em.listName],
+    ['Active subs', em.activeSubscribers ? em.activeSubscribers.toLocaleString() : null],
+    ['New this month', em.newThisMonth != null ? '+' + em.newThisMonth : null],
+    ['Open rate', em.avgOpenRate ? em.avgOpenRate + '%' : null],
+    ['Click rate', em.avgClickRate ? em.avgClickRate + '%' : null],
+    ['Unsub rate', em.avgUnsubRate ? em.avgUnsubRate + '%' : null],
+  ]);
+
+  sparkline('spark-on-ig', ig.sparkline14d || [], BLUE);
+  sparkline('spark-on-yt', yt.sparkline14d || [], '#7a9ed5');
+
+  const reach = D.online?.dailyReach30d || {};
+  const days30 = last30DayLabels();
+  chart('c-on-reach', 'line', days30, [
+    { label: 'Instagram', data: reach.instagram || [], borderColor: BLUE, backgroundColor: BLUE + '0f', fill: true, tension: 0.4, pointRadius: 0 },
+    { label: 'YouTube', data: reach.youtube || [], borderColor: RED, backgroundColor: RED + '0d', fill: true, tension: 0.4, pointRadius: 0 },
+  ]);
+}
+
+// ── SEO ────────────────────────────────────────────────────────────────────
+let _seoFilter = 'all';
+
+function filterSeo(f, tab) {
+  _seoFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  renderSeo(f);
+}
+
+function renderSeo(filter) {
+  const seo = D.seo || {};
+  txt('seo-clicks', bigNum(seo.totalClicks28d));
+  txt('seo-impressions', bigNum(seo.totalImpressions28d));
+  txt('seo-ctr', seo.avgCTR ? seo.avgCTR + '%' : '—');
+  txt('seo-position', seo.avgPosition || '—');
+
+  const kws = (seo.keywords || []).filter(k => filter === 'all' || k.brand === filter);
+  document.getElementById('seo-tbody').innerHTML = kws.map(k => {
+    const diff = (k.prevPosition || k.position) - k.position;
+    const chg = diff > 0
+      ? `<span class="pos-up">↑ ${diff}</span>`
+      : diff < 0
+        ? `<span class="pos-down">↓ ${Math.abs(diff)}</span>`
+        : `<span class="pos-same">—</span>`;
+    const cls = k.brand === 'HQ' ? 'badge-hq' : 'badge-online';
+    return `<tr>
+      <td style="padding:11px 16px">${k.keyword}</td>
+      <td><span class="badge ${cls}">${k.brand}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-weight:500">${k.position}</td>
+      <td>${chg}</td>
+      <td style="font-family:'DM Mono',monospace">${k.volume ? k.volume.toLocaleString() : '—'}</td>
+      <td style="color:var(--muted);font-size:11px;font-family:'DM Mono',monospace">${k.url || '—'}</td>
+    </tr>`;
   }).join('');
 }
-async function loadMembershipCounts() {
-  try {
-    const res = await fetch('/.netlify/functions/gymmaster?type=membership-counts');
-    if (!res.ok) return;
-    const counts = await res.json();
-    const barMap = [['Gym Access 24/7','bar-t1'],['Perf Base','bar-t2'],['Perf Core','bar-t3'],['Perf Plus','bar-t4'],['Perf Prime','bar-t5'],['Plus Online','bar-t6'],['Community','bar-t7'],['S\u0026C Open Session','bar-t8']];
-    const total = Object.values(counts).reduce((s,n)=>s+(n||0),0)||1;
-    barMap.forEach(([key,id])=>{
-      const n=counts[key]||0;
-      const pct=Math.round(n/total*100);
-      const el=document.getElementById(id);
-      if(el){el.style.width=pct+'%';}
-      const row=el?el.closest('li,[class*="member"],.type-row')||el.parentElement?.parentElement:null;
-      if(row){const c=row.querySelector('.count,.num,[class*="count"]');if(c)c.textContent=n;}
-    });
-  } catch(e){}
+
+// ── Email ──────────────────────────────────────────────────────────────────
+function renderEmail() {
+  const t = D.emailTrends6m || {};
+  const months = t.months || [];
+  const hq = t.hq || {};
+  const on = t.online || {};
+
+  chart('c-email-open', 'line', months, [
+    { label: 'HQ open rate', data: hq.openRates || [], borderColor: NAVY, backgroundColor: 'transparent', tension: 0.4, pointRadius: 3, pointBackgroundColor: NAVY },
+    { label: 'Online open rate', data: on.openRates || [], borderColor: BLUE, backgroundColor: 'transparent', tension: 0.4, pointRadius: 3, pointBackgroundColor: BLUE },
+  ], v => v + '%');
+
+  chart('c-email-list', 'bar', months, [
+    { label: 'HQ', data: hq.emailsSent || [], backgroundColor: NAVY + '99', borderRadius: 4 },
+    { label: 'Online', data: on.emailsSent || [], backgroundColor: BLUE + '99', borderRadius: 4 },
+  ]);
+
+  const hqC = D.hq?.email?.lastCampaign || {};
+  const onC = D.online?.email?.lastCampaign || {};
+
+  document.getElementById('email-card-hq').innerHTML =
+    `<div class="card-title">HQ — Last campaign</div>
+     <div class="card-sub" style="margin-bottom:0.75rem">${hqC.name || '—'}&nbsp;·&nbsp;${hqC.date || ''}</div>`
+    + rows([
+      ['Sent to', hqC.sent ? hqC.sent.toLocaleString() : null],
+      ['Open rate', hqC.openRate ? hqC.openRate + '%' : null],
+      ['Click rate', hqC.clickRate ? hqC.clickRate + '%' : null],
+      ['Unsub rate', hqC.unsubRate ? hqC.unsubRate + '%' : null],
+    ]);
+
+  document.getElementById('email-card-online').innerHTML =
+    `<div class="card-title">Online — Last campaign</div>
+     <div class="card-sub" style="margin-bottom:0.75rem">${onC.name || '—'}&nbsp;·&nbsp;${onC.date || ''}</div>`
+    + rows([
+      ['Sent to', onC.sent ? onC.sent.toLocaleString() : null],
+      ['Open rate', onC.openRate ? onC.openRate + '%' : null],
+      ['Click rate', onC.clickRate ? onC.clickRate + '%' : null],
+      ['Unsub rate', onC.unsubRate ? onC.unsubRate + '%' : null],
+    ]);
 }
 
-loadLiveData();
-loadMembershipCounts();
-loadClassSchedule();
-loadMembersTab();
+// ── Ads ────────────────────────────────────────────────────────────────────
+function renderAds() {
+  const ads = D.ads || {};
+  txt('ads-spend', ads.totalSpend30d != null ? '$' + ads.totalSpend30d.toLocaleString() : '—');
+  txt('ads-reach', bigNum(ads.totalReach30d));
+  txt('ads-leads', ads.totalLeads30d ?? '—');
+  txt('ads-cpl', ads.overallCPL ? '$' + ads.overallCPL : '—');
+  txt('ads-roas', ads.roas ? ads.roas + 'x' : '—');
+
+  document.getElementById('ads-campaigns').innerHTML = (ads.campaigns || []).map(c => `
+    <tr>
+      <td style="padding:11px 16px">${c.name}<br><span style="font-size:11px;color:var(--muted)">${c.brand}</span></td>
+      <td style="font-family:'DM Mono',monospace">$${c.spend}</td>
+      <td style="font-family:'DM Mono',monospace">${c.leads}</td>
+      <td style="font-family:'DM Mono',monospace">$${c.cpl}</td>
+    </tr>`).join('');
+
+  document.getElementById('ads-creatives').innerHTML = (ads.creativePerformance || []).map(c => `
+    <tr>
+      <td style="padding:11px 16px">${c.name}</td>
+      <td><span class="badge badge-hq">${c.format}</span></td>
+      <td style="font-family:'DM Mono',monospace">${c.impressions ? c.impressions.toLocaleString() : '—'}</td>
+      <td style="font-family:'DM Mono',monospace">${c.ctr}%</td>
+      <td style="font-family:'DM Mono',monospace">${c.leads}</td>
+      <td style="font-family:'DM Mono',monospace">$${c.cpl}</td>
+    </tr>`).join('');
+
+  chart('c-ads-spend', 'bar', last30DayLabels(), [
+    { label: 'Daily spend', data: ads.dailySpend30d || [], backgroundColor: AMBER + '99', borderRadius: 3 },
+  ], v => '$' + v);
+}
+
+// ── Bookings ───────────────────────────────────────────────────────────────
+function renderBookings() {
+  const bk = D.bookings || {};
+  txt('bk-total', bk.totalAppointments30d ?? '—');
+  txt('bk-new', bk.newPatients30d ?? '—');
+  txt('bk-returning', bk.returningPatients30d ?? '—');
+  txt('bk-cancel', bk.cancellationRate != null ? bk.cancellationRate + '%' : '—');
+  txt('bk-leadtime', bk.avgLeadTimeDays ? bk.avgLeadTimeDays + ' days' : '—');
+
+  const sources = bk.bookingSources || {};
+  const srcEntries = Object.entries(sources).filter(([k]) => k !== '_source');
+  const srcLabels = srcEntries.map(([k]) => k.replace(/([A-Z])/g, ' $1').trim());
+  const srcData = srcEntries.map(([, v]) => v);
+  const srcColors = [NAVY, BLUE, '#4a72c0', '#7a9ed5', '#aac4e0', AMBER, RED];
+
+  chart('c-bk-sources', 'doughnut', srcLabels, [
+    { data: srcData, backgroundColor: srcColors.slice(0, srcData.length), borderWidth: 0, hoverOffset: 4 },
+  ], null, {
+    cutout: '58%',
+    plugins: { legend: { position: 'right', labels: { font: FONT, boxWidth: 10, padding: 10 } } },
+  });
+
+  chart('c-bk-daily', 'bar', last30DayLabels(), [
+    { label: 'Appointments', data: bk.dailyAppointments30d || [], backgroundColor: '#1a7a4a99', borderRadius: 3 },
+  ]);
+
+  document.getElementById('bk-types').innerHTML = (bk.appointmentTypes || []).map(t => `
+    <tr>
+      <td style="padding:11px 16px">${t.type}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:500;padding:11px 12px">${t.count}</td>
+    </tr>`).join('');
+}
+
+// ── AI Insights ────────────────────────────────────────────────────────────
+async function generateInsights(brand) {
+  const loading = document.getElementById('ai-loading');
+  const content = document.getElementById('ai-content');
+  loading.style.display = 'block';
+  content.style.display = 'none';
+  try {
+    const res = await fetch('/.netlify/functions/update-dashboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'ai-insights', brand }),
+    });
+    const data = await res.json();
+    const text = data.insights || data.error || 'No response — check ANTHROPIC_API_KEY in Netlify';
+    content.textContent = (brand === 'hq' ? '── HQ ──\n\n' : '── Online ──\n\n') + text;
+    content.style.display = 'block';
+  } catch (e) {
+    content.textContent = 'Request failed: ' + e.message;
+    content.style.display = 'block';
+  } finally {
+    loading.style.display = 'none';
+  }
+}
+
+// ── Chart helpers ──────────────────────────────────────────────────────────
+const _charts = {};
+
+function chart(id, type, labels, datasets, yFmt, extraOpts) {
+  if (_charts[id]) { try { _charts[id].destroy(); } catch (_) {} }
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const isCartesian = type !== 'doughnut' && type !== 'pie';
+  const ov = extraOpts || {};
+  const opts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: ov.plugins || { legend: { labels: { font: FONT, boxWidth: 8 } } },
+    ...(isCartesian ? {
+      scales: {
+        x: { grid: { display: false }, ticks: { font: FONT, maxRotation: 0, maxTicksLimit: 7 } },
+        y: { ticks: { font: FONT, ...(yFmt ? { callback: yFmt } : {}) } },
+      },
+    } : {}),
+    ...(ov.cutout != null ? { cutout: ov.cutout } : {}),
+  };
+  _charts[id] = new Chart(canvas, { type, data: { labels, datasets }, options: opts });
+}
+
+function sparkline(id, data, color) {
+  if (_charts[id]) { try { _charts[id].destroy(); } catch (_) {} }
+  const canvas = document.getElementById(id);
+  if (!canvas || !data.length) return;
+  _charts[id] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: data.map((_, i) => i),
+      datasets: [{ data, borderColor: color, backgroundColor: color + '18', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 1.5 }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } },
+    },
+  });
+}
+
+// ── DOM helpers ────────────────────────────────────────────────────────────
+function txt(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = (val == null || val === '') ? '—' : val;
+}
+
+function bigNum(n) {
+  if (n == null) return '—';
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(n);
+}
+
+function signPct(n) {
+  if (n == null) return '';
+  return (n >= 0 ? '+' : '') + n + '%';
+}
+
+function rows(pairs) {
+  return pairs.map(([k, v]) =>
+    `<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">${v ?? '—'}</span></div>`
+  ).join('');
+}
+
+function last30DayLabels() {
+  return Array.from({ length: 30 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - 29 + i);
+    return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  });
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+loadDashboard();
 </script>
+</body>
+</html>
