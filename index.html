@@ -398,18 +398,6 @@ function buildCharts() {
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{min:0,max:6,ticks:{font:tickFont,callback:function(v){return v+'%'}}}}}
   });
 
-  new Chart(document.getElementById('c-bookings'), {
-    type:'bar',
-    data:{
-      labels:['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],
-      datasets:[
-        {label:'Bookings', data:[312,298,341,289,367,321,298,344], backgroundColor:blue, borderRadius:4, borderSkipped:false},
-        {label:'No-shows', data:[28,34,22,41,19,38,31,25], backgroundColor:light, borderRadius:4, borderSkipped:false}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:tickFont,boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:tickFont}},y:{ticks:{font:tickFont}}}}
-  });
-
   new Chart(document.getElementById('c-revtype'), {
     type:'doughnut',
     data:{
@@ -559,16 +547,6 @@ async function loadLiveData() {
         }).join('');
       }
 
-      // MEMBER TABLE
-      const tableMembers = all.slice(0,100).map(m => ({
-        name:(m.firstname||'')+' '+(m.lastname||''), type:mapMemberName(m.membership_name),
-        status:m.status, statusLabel:m.status||'unknown',
-        joined:m.join_date ? new Date(m.join_date).toLocaleDateString('en-AU',{month:'short',year:'numeric'}) : '—',
-        lastVisit:m.last_visit ? new Date(m.last_visit).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Never',
-        visits:m.visit_count||0
-      }));
-      renderMembers(tableMembers);
-
       const badge = document.querySelector('.live-badge');
       if (badge) badge.innerHTML = '<div class="live-dot"></div>LIVE DATA';
     }
@@ -595,16 +573,6 @@ loadLiveData = async function() {
     }
   }
 };
-// Show only active/hold members, sorted by most recent join date
-const _origRM = renderMembers;
-renderMembers = function(data) {
-  _origRM(
-    data.filter(function(m){ return m.status === 'active' || m.status === 'hold'; })
-        .sort(function(a,b){ return new Date(b.join_date||0) - new Date(a.join_date||0); })
-        .slice(0, 200)
-  );
-};
-
 // ── Live Membership Counts (webhook-updated Netlify Blobs) ──
 
 // ── CLASS SCHEDULE ─────────────────────────────────────────────
